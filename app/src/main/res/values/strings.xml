@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Taller2App</string>
+    <string name="work_done">Work Done</string>
+    <string name="payments_received">Payments received</string>
 </resources>
