@@ -4,9 +4,17 @@
     <string name="works">Works</string>
     <string name="search_work">Search work</string>
     <string name="annotations">Annotations</string>
+    <string name="enter_amount">Enter amount</string>
     <string name="home">Home</string>
     <string name="payments_received">Payments received</string>
+    <string name="cash_received">Cash received</string>
+    <string name="checks_received">Checks received</string>
+    <string name="new_payment">New payment</string>
     <string name="balance">Balance</string>
     <string name="cash">Cash</string>
     <string name="checks">Checks</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="add_new_work">Add new work</string>
+    <string name="add_new_payment">Add new payment</string>
 </resources>
