@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,6 +27,16 @@ fun BottomBarItem(navController: NavHostController) {
 
     var index by rememberSaveable { mutableIntStateOf(0) }
 
+    LaunchedEffect(navController) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.route) {
+                Routes.Home.route -> index = 0
+                Routes.Works.route -> index = 1
+                Routes.Annotations.route -> index = 2
+            }
+        }
+    }
+
     NavigationBar(
         Modifier.fillMaxWidth(),
         containerColor = CardBackground,
@@ -34,7 +45,6 @@ fun BottomBarItem(navController: NavHostController) {
         NavigationBarItem(
             selected = index == 0,
             onClick = {
-                index = 0
                 navController.navigate(Routes.Home.route)
             },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home button") },
@@ -43,7 +53,6 @@ fun BottomBarItem(navController: NavHostController) {
         NavigationBarItem(
             selected = index == 1,
             onClick = {
-                index = 1
                 navController.navigate(Routes.Works.route)
             },
             icon = {
@@ -57,7 +66,6 @@ fun BottomBarItem(navController: NavHostController) {
         NavigationBarItem(
             selected = index == 2,
             onClick = {
-                index = 2
                 navController.navigate(Routes.Annotations.route)
             },
             icon = {
