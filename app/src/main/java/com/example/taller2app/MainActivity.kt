@@ -5,12 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,21 +23,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Taller2AppTheme {
+                val navController = rememberNavController()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomBarItem()
+                        BottomBarItem(navController)
                     }
                 ) { innerPadding ->
 
-//                    val navController = rememberNavController()
-//
-//                    NavHost(navController, startDestination = "home") {
-//                        composable(Routes.Home.route) { HomeScreen(innerPadding) }
-//                    }
+
+                    NavHost(navController, startDestination = Routes.Home.route) {
+                        composable(Routes.Home.route) { HomeScreen(innerPadding) }
+                        composable(Routes.Works.route) { WorkListScreen(innerPadding) }
+                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
+                    }
 //                    WorkListScreen(innerPadding)
-                    AnnotationsScreen(innerPadding)
+//                    AnnotationsScreen(innerPadding)
 //                        HomeScreen(innerPadding)
                 }
             }
