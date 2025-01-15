@@ -21,7 +21,7 @@ val Typography = Typography(
         fontWeight = FontWeight.ExtraBold,
         fontSize = 28.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.sp,
+        letterSpacing = 1.sp,
         color = TextColor
     ),
 /* Other default text styles to override

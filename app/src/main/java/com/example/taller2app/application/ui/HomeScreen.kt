@@ -20,23 +20,31 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.TextColor
+import kotlin.math.exp
 
 @Composable
 fun HomeScreen(innerPadding: PaddingValues) {
@@ -75,15 +83,15 @@ fun HomeScreen(innerPadding: PaddingValues) {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    TitleItem("Balance")
+                    TitleItem(text = stringResource(R.string.balance))
                     Spacer(Modifier.size(8.dp))
                     TitleItem("$50.000")
                     Spacer(Modifier.size(16.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    BodyTextItem("Trabajos realizados: $150.000")
+                    BodyTextItem("${stringResource(R.string.work_done)}: $150.000")
                     Spacer(Modifier.size(8.dp))
-                    BodyTextItem("Pagos recibidos: $150.000")
+                    BodyTextItem("${stringResource(R.string.payments_received)}: $150.000")
                 }
             }
             Spacer(Modifier.size(16.dp))
@@ -158,9 +166,9 @@ fun HomeScreen(innerPadding: PaddingValues) {
                     Spacer(Modifier.size(4.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    BodyTextItem("Cheques: $150.000")
+                    BodyTextItem("${stringResource(R.string.checks)}: $150.000")
                     Spacer(Modifier.size(8.dp))
-                    BodyTextItem("Efectivo: $150.000")
+                    BodyTextItem("${stringResource(R.string.cash)}: $150.000")
                 }
             }
         }
@@ -187,15 +195,38 @@ fun HorizontalDividerCard() {
 }
 
 @Composable
-fun HomeFabItem(modifier: Modifier, innerPadding: PaddingValues){
+fun HomeFabItem(modifier: Modifier, innerPadding: PaddingValues) {
+
+    var expandedValue by rememberSaveable { mutableStateOf(false) }
+
     FloatingActionButton(
-        onClick = { },
-        modifier = modifier.padding(bottom = innerPadding.calculateBottomPadding() + 16.dp),
+        onClick = { expandedValue = true },
+        modifier = modifier.padding(bottom = innerPadding.calculateBottomPadding() + 16.dp, end = 8.dp),
         containerColor = ButtonColor,
         contentColor = TextColor
 
     ) {
         Icon(Icons.Filled.Add, contentDescription = "Add button")
+        DropdownMenuHomeItem(expandedValue) { expandedValue = false}
+    }
+}
+
+@Composable
+fun DropdownMenuHomeItem(expandedValue: Boolean, onDismiss: () -> Unit) {
+    DropdownMenu(
+        expanded = expandedValue,
+        onDismissRequest = { onDismiss() },
+        offset = DpOffset((-34).dp, 0.dp),
+        modifier = Modifier.background(ButtonColor)
+    ) {
+        DropdownMenuItem(
+            text = { Text("Add new work") },
+            onClick = {}
+        )
+        DropdownMenuItem(
+            text = { Text("Add new payment") },
+            onClick = {}
+        )
     }
 }
 

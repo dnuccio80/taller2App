@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">Taller2App</string>
     <string name="work_done">Work Done</string>
+    <string name="works">Works</string>
+    <string name="search_work">Search work</string>
+    <string name="annotations">Annotations</string>
+    <string name="home">Home</string>
     <string name="payments_received">Payments received</string>
+    <string name="balance">Balance</string>
+    <string name="cash">Cash</string>
+    <string name="checks">Checks</string>
 </resources>

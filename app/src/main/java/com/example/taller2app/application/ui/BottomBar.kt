@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.taller2app.R
 import com.example.taller2app.ui.theme.CardBackground
 
@@ -36,7 +37,7 @@ fun BottomBarItem() {
             selected = index == 0,
             onClick = { index = 0 },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home button") },
-            label = { Text(text = "Home") }
+            label = { Text(text = stringResource(R.string.home)) }
         )
         NavigationBarItem(
             selected = index == 1,
@@ -47,7 +48,7 @@ fun BottomBarItem() {
                     contentDescription = "Home button"
                 )
             },
-            label = { Text(text = "Work Done") }
+            label = { Text(text = stringResource(R.string.works)) }
         )
         NavigationBarItem(
             selected = index == 2,
@@ -58,7 +59,7 @@ fun BottomBarItem() {
                     contentDescription = "Home button"
                 )
             },
-            label = { Text(text = "Annotations") }
+            label = { Text(text = stringResource(R.string.annotations)) }
         )
     }
 }
