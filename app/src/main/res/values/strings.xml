@@ -14,6 +14,8 @@
     <string name="cash">Cash</string>
     <string name="checks">Checks</string>
     <string name="accept">Accept</string>
+    <string name="modify">Modify</string>
+    <string name="delete">Delete</string>
     <string name="decline">Decline</string>
     <string name="add_new_work">Add new work</string>
     <string name="add_new_payment">Add new payment</string>

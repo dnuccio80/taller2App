@@ -11,11 +11,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
 import com.example.taller2app.ui.theme.ButtonColor
@@ -39,10 +42,10 @@ fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues) {
 }
 
 @Composable
-fun AcceptDeclineButtons(onAccept: () -> Unit, onDecline: () -> Unit) {
+fun AcceptDeclineButtons(acceptText: String, declineText: String, onAccept: () -> Unit, onDecline: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-        ButtonItem(stringResource(R.string.accept)) { onAccept() }
-        ButtonItem(stringResource(R.string.decline)) { onDecline() }
+        ButtonItem(acceptText) { onAccept() }
+        ButtonItem(declineText) { onDecline() }
     }
 }
 
@@ -58,4 +61,23 @@ fun ButtonItem(text: String, onClick: () -> Unit) {
     ) {
         Text(text)
     }
+}
+
+@Composable
+fun TitleItem(text: String) {
+    Text(text, style = MaterialTheme.typography.titleLarge)
+}
+
+@Composable
+fun BodyTextItem(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
+    Text(text, style = MaterialTheme.typography.bodyLarge, modifier = modifier, textAlign = textAlign)
+}
+
+@Composable
+fun HorizontalDividerCard() {
+    HorizontalDivider(
+        Modifier.fillMaxWidth(),
+        thickness = .5.dp,
+        color = ButtonColor
+    )
 }

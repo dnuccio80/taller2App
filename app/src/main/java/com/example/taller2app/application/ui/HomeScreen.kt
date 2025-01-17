@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -24,11 +25,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +42,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
+import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
+import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
@@ -55,6 +58,10 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
     val showAddWorkDialog = viewModel.showAddWorkDialog.collectAsState()
     val quantityEditedWork = viewModel.quantityEditedWork.collectAsState()
     val workSelectedValue = viewModel.workSelectedValue.collectAsState()
+
+    val workDoneList = viewModel.workDoneList.collectAsState()
+    val paymentReceivedList = viewModel.paymentReceivedList.collectAsState()
+
 
     Box(
         Modifier
@@ -75,9 +82,9 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             Spacer(Modifier.size(16.dp))
             BalanceCardItem()
             Spacer(Modifier.size(16.dp))
-            WorkDoneCardItem() { viewModel.updateShowEditWorkDialog(true) }
+            WorkDoneCardItem(workDoneList) { viewModel.updateShowEditWorkDialog(true) }
             Spacer(Modifier.size(16.dp))
-            PaymentReceivedCardItem()
+            PaymentReceivedCardItem(paymentReceivedList)
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
@@ -93,6 +100,8 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             showEditWorkDialog.value,
             viewModel = viewModel,
             workSelected = workSelectedValue.value,
+            acceptText = stringResource(R.string.modify),
+            declineText = stringResource(R.string.delete),
             titleText = stringResource(R.string.edit_work_done),
             onDismiss = { viewModel.updateShowEditWorkDialog(false) },
             workQuantity = quantityEditedWork.value,
@@ -114,6 +123,8 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             viewModel = viewModel,
             workSelected = workSelectedValue.value,
             titleText = stringResource(R.string.add_new_work),
+            acceptText = stringResource(R.string.accept),
+            declineText = stringResource(R.string.decline),
             onDismiss = {
                 viewModel.updateShowAddWorkDialog(false)
                 viewModel.updateQuantityEditedWork("")
@@ -170,7 +181,8 @@ private fun BalanceCardItem() {
 }
 
 @Composable
-private fun PaymentReceivedCardItem() {
+private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentReceivedDataClass>>) {
+
     Card(
         Modifier
             .fillMaxWidth()
@@ -198,8 +210,8 @@ private fun PaymentReceivedCardItem() {
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(10) {
-                    PaymentCardItem()
+                items(paymentReceivedList.value){
+                    PaymentCardItem(it)
                 }
             }
         }
@@ -207,18 +219,14 @@ private fun PaymentReceivedCardItem() {
 }
 
 @Composable
-fun PaymentCardItem() {
+fun PaymentCardItem(payment:PaymentReceivedDataClass) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem("Checks")
+        BodyTextItem(payment.description, Modifier.weight(.5f))
         Spacer(Modifier.width(8.dp))
-        BodyTextItem("...................................")
-        Spacer(Modifier.width(8.dp))
-        BodyTextItem("$")
-        Spacer(Modifier.width(8.dp))
-        BodyTextItem("7200")
+        BodyTextItem("$ ${payment.formatNumber(payment.amount)}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
         Icon(
             Icons.Filled.Edit,
@@ -229,7 +237,11 @@ fun PaymentCardItem() {
 }
 
 @Composable
-private fun WorkDoneCardItem(onEditWorkButtonClicked: () -> Unit) {
+private fun WorkDoneCardItem(
+    workDoneList: State<List<WorkDoneDataClass>>,
+    onEditWorkButtonClicked: () -> Unit
+) {
+
     Card(
         Modifier
             .fillMaxWidth()
@@ -257,25 +269,8 @@ private fun WorkDoneCardItem(onEditWorkButtonClicked: () -> Unit) {
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(10) {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        BodyTextItem("Tubo torneado", Modifier.weight(1f))
-                        BodyTextItem("x12")
-                        Spacer(Modifier.width(16.dp))
-                        BodyTextItem("$7200")
-                        Spacer(Modifier.width(16.dp))
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "edit work",
-                            tint = Color.White,
-                            modifier = Modifier.clickable {
-                                onEditWorkButtonClicked()
-                            }
-                        )
-                    }
+                items(workDoneList.value){
+                    WorkItem(it, onEditWorkButtonClicked)
                 }
             }
 
@@ -284,23 +279,28 @@ private fun WorkDoneCardItem(onEditWorkButtonClicked: () -> Unit) {
 }
 
 @Composable
-fun TitleItem(text: String) {
-    Text(text, style = MaterialTheme.typography.titleLarge)
-}
-
-@Composable
-fun BodyTextItem(text: String, modifier: Modifier = Modifier) {
-    Text(text, style = MaterialTheme.typography.bodyLarge, modifier = modifier)
-}
-
-@Composable
-fun HorizontalDividerCard() {
-    HorizontalDivider(
+fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked:() -> Unit){
+    Row(
         Modifier.fillMaxWidth(),
-        thickness = .5.dp,
-        color = ButtonColor
-    )
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BodyTextItem(work.description, Modifier.weight(1f))
+        BodyTextItem("x ${work.quantity}", Modifier.weight(.3f) )
+        Spacer(Modifier.width(16.dp))
+        BodyTextItem("$ ${work.formatNumber(work.totalPrice)}", Modifier.weight(.5f))
+        Spacer(Modifier.width(16.dp))
+        Icon(
+            Icons.Filled.Edit,
+            contentDescription = "edit work",
+            tint = Color.White,
+            modifier = Modifier.clickable {
+                onEditWorkButtonClicked()
+            }
+        )
+    }
 }
+
+
 
 @Composable
 fun HomeFabItem(

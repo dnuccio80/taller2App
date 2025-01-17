@@ -88,6 +88,8 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
                     PaymentMethodGroup(paymentValue) { viewModel.updatePaymentMethod(it) }
                     Spacer(Modifier.size(16.dp))
                     AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
                         onDecline = {
                             onDismiss()
                             viewModel.updateAmountPaymentValue("")
@@ -174,6 +176,8 @@ fun CashAmountTextField(
 fun EditWorkDoneDialog(
     show: Boolean,
     viewModel: TallerViewModel,
+    acceptText:String,
+    declineText:String,
     workSelected:String,
     titleText: String,
     workQuantity: String,
@@ -218,6 +222,8 @@ fun EditWorkDoneDialog(
                     )
                     Spacer(Modifier.size(32.dp))
                     AcceptDeclineButtons(
+                        acceptText = acceptText,
+                        declineText = declineText,
                         onAccept = { onAcceptButtonClicked() },
                         onDecline = { onDismiss() }
                     )
