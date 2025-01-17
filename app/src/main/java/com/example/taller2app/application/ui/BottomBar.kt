@@ -9,6 +9,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,17 +24,20 @@ import com.example.taller2app.application.data.Routes
 import com.example.taller2app.ui.theme.CardBackground
 
 @Composable
-fun BottomBarItem(navController: NavHostController) {
+fun BottomBarItem(navController: NavHostController, viewModel: TallerViewModel) {
 
-    var index by rememberSaveable { mutableIntStateOf(0) }
+    val indexSelected = viewModel.indexBottomBarSelected.collectAsState()
 
     LaunchedEffect(navController) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            var index = 0
             when (destination.route) {
                 Routes.Home.route -> index = 0
                 Routes.Works.route -> index = 1
                 Routes.Annotations.route -> index = 2
             }
+
+            viewModel.updateIndexBottomBarSelected(index)
         }
     }
 
@@ -43,7 +47,7 @@ fun BottomBarItem(navController: NavHostController) {
         contentColor = Color.White
     ) {
         NavigationBarItem(
-            selected = index == 0,
+            selected = indexSelected.value == 0,
             onClick = {
                 navController.navigate(Routes.Home.route)
             },
@@ -51,7 +55,7 @@ fun BottomBarItem(navController: NavHostController) {
             label = { Text(text = stringResource(R.string.home)) }
         )
         NavigationBarItem(
-            selected = index == 1,
+            selected = indexSelected.value == 1,
             onClick = {
                 navController.navigate(Routes.Works.route)
             },
@@ -64,7 +68,7 @@ fun BottomBarItem(navController: NavHostController) {
             label = { Text(text = stringResource(R.string.works)) }
         )
         NavigationBarItem(
-            selected = index == 2,
+            selected = indexSelected.value == 2,
             onClick = {
                 navController.navigate(Routes.Annotations.route)
             },

@@ -33,12 +33,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomBarItem(navController)
+                        BottomBarItem(navController, viewModel)
                     }
                 ) { innerPadding ->
                     NavHost(navController, startDestination = Routes.Home.route) {
-                        composable(Routes.Home.route) { HomeScreen(innerPadding) }
-                        composable(Routes.Works.route) { WorkListScreen(innerPadding) }
+                        composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
+                        composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
                         composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
                     }
 

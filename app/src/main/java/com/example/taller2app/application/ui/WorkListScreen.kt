@@ -15,17 +15,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,10 +41,12 @@ import com.example.taller2app.R
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
-import com.example.taller2app.ui.theme.TextColor
 
 @Composable
-fun WorkListScreen(innerPadding: PaddingValues) {
+fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
+
+    val searchWorkText = viewModel.searchWorkText.collectAsState()
+
     Box(
         Modifier
             .fillMaxSize()
@@ -62,9 +63,7 @@ fun WorkListScreen(innerPadding: PaddingValues) {
                 )
         ) {
 
-            var textValue by rememberSaveable { mutableStateOf("") }
-
-            SearchWorkTextField(textValue) { textValue = it }
+            SearchWorkTextField(searchWorkText.value) { viewModel.updateSearchWorkText(it) }
             Spacer(Modifier.size(16.dp))
             LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(30){

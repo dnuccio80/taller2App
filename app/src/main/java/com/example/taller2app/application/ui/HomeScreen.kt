@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,12 +48,13 @@ import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.TextColor
 
 @Composable
-fun HomeScreen(innerPadding: PaddingValues) {
+fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
-    var showPaymentDialog by rememberSaveable { mutableStateOf(false) }
-    var showEditWorkDialog by rememberSaveable { mutableStateOf(false) }
-    var showAddWorkDialog by rememberSaveable { mutableStateOf(false) }
-    var quantityEditedWork by rememberSaveable { mutableStateOf("") }
+    val showPaymentDialog = viewModel.showPaymentDialog.collectAsState()
+    val showEditWorkDialog = viewModel.showEditWorkDialog.collectAsState()
+    val showAddWorkDialog = viewModel.showAddWorkDialog.collectAsState()
+    val quantityEditedWork = viewModel.quantityEditedWork.collectAsState()
+    val workSelectedValue = viewModel.workSelectedValue.collectAsState()
 
     Box(
         Modifier
@@ -73,32 +75,62 @@ fun HomeScreen(innerPadding: PaddingValues) {
             Spacer(Modifier.size(16.dp))
             BalanceCardItem()
             Spacer(Modifier.size(16.dp))
-            WorkDoneCardItem() { showEditWorkDialog = true }
+            WorkDoneCardItem() { viewModel.updateShowEditWorkDialog(true) }
             Spacer(Modifier.size(16.dp))
             PaymentReceivedCardItem()
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
             innerPadding,
-            onNewWorkClicked = { showAddWorkDialog = true },
-            onNewPaymentClicked = { showPaymentDialog = true })
-        NewPaymentDialog(showPaymentDialog) { showPaymentDialog = false }
+            onNewWorkClicked = { viewModel.updateShowAddWorkDialog(true) },
+            onNewPaymentClicked = { viewModel.updateShowPaymentDialog(true) })
+        NewPaymentDialog(showPaymentDialog.value, viewModel) {
+            viewModel.updateShowPaymentDialog(
+                false
+            )
+        }
         EditWorkDoneDialog(
-            showEditWorkDialog,
+            showEditWorkDialog.value,
+            viewModel = viewModel,
+            workSelected = workSelectedValue.value,
             titleText = stringResource(R.string.edit_work_done),
-            onDismiss = { showEditWorkDialog = false },
-            workQuantity = quantityEditedWork,
-            onQuantityChange = { quantityEditedWork = it }
+            onDismiss = { viewModel.updateShowEditWorkDialog(false) },
+            workQuantity = quantityEditedWork.value,
+            onQuantityChange = { viewModel.updateQuantityEditedWork(it) },
+            onAcceptButtonClicked = {
+                if (viewModel.hasAllCorrectFields(
+                        quantityEditedWork.value,
+                        workSelectedValue.value
+                    )
+                ) {
+                    viewModel.updateShowEditWorkDialog(false)
+                    viewModel.updateWorkSelectedValue("")
+                    viewModel.updateQuantityEditedWork("")
+                }
+            }
         )
         EditWorkDoneDialog(
-            showAddWorkDialog,
+            showAddWorkDialog.value,
+            viewModel = viewModel,
+            workSelected = workSelectedValue.value,
             titleText = stringResource(R.string.add_new_work),
             onDismiss = {
-                showAddWorkDialog = false
-                quantityEditedWork = ""
+                viewModel.updateShowAddWorkDialog(false)
+                viewModel.updateQuantityEditedWork("")
             },
-            workQuantity = quantityEditedWork,
-            onQuantityChange = { quantityEditedWork = it }
+            workQuantity = quantityEditedWork.value,
+            onQuantityChange = { viewModel.updateQuantityEditedWork(it) },
+            onAcceptButtonClicked = {
+                if (viewModel.hasAllCorrectFields(
+                        quantityEditedWork.value,
+                        workSelectedValue.value
+                    )
+                ) {
+                    viewModel.updateShowAddWorkDialog(false)
+                    viewModel.updateWorkSelectedValue("")
+                    viewModel.updateQuantityEditedWork("")
+                }
+            }
         )
     }
 }

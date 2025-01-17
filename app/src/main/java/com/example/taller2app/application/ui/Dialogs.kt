@@ -26,10 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,17 +44,16 @@ import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
 
 @Composable
-fun NewPaymentDialog(show: Boolean, onDismiss: () -> Unit) {
+fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
 
-    var amountValue by rememberSaveable { mutableStateOf("") }
-    var paymentValue by rememberSaveable { mutableStateOf("") }
-
+    val amountValue by viewModel.amountPaymentValue.collectAsState()
+    val paymentValue by viewModel.paymentMethod.collectAsState()
 
     if (show) {
         Dialog(
             onDismissRequest = {
                 onDismiss()
-                amountValue = ""
+                viewModel.updateAmountPaymentValue("")
             }
         ) {
             Card(
@@ -83,24 +80,27 @@ fun NewPaymentDialog(show: Boolean, onDismiss: () -> Unit) {
                     Spacer(Modifier.size(8.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    CashAmountTextField(amountValue) { amountValue = it }
+                    CashAmountTextField(
+                        amountValue,
+                        viewModel
+                    ) { viewModel.updateAmountPaymentValue(it) }
                     Spacer(Modifier.size(16.dp))
-                    PaymentMethodGroup(paymentValue) { paymentValue = it }
+                    PaymentMethodGroup(paymentValue) { viewModel.updatePaymentMethod(it) }
                     Spacer(Modifier.size(16.dp))
                     AcceptDeclineButtons(
                         onDecline = {
                             onDismiss()
-                            amountValue = ""
+                            viewModel.updateAmountPaymentValue("")
                         },
                         onAccept = {
-                            if (hasAllCorrectFields(
+                            if (viewModel.hasAllCorrectFields(
                                     amount = amountValue,
-                                    paymentMethod = paymentValue
+                                    listValue = paymentValue
                                 )
                             ) {
                                 onDismiss()
-                                amountValue = ""
-                                paymentValue = ""
+                                viewModel.updateAmountPaymentValue("")
+                                viewModel.updatePaymentMethod("")
                             }
                         })
                 }
@@ -140,11 +140,15 @@ fun RadioButtonItem(selectedValue: String, description: String, onClick: (String
 }
 
 @Composable
-fun CashAmountTextField(amountValue: String, onValueChange: (String) -> Unit) {
+fun CashAmountTextField(
+    amountValue: String,
+    viewModel: TallerViewModel,
+    onValueChange: (String) -> Unit
+) {
     TextField(
         value = amountValue,
         onValueChange = { newValue ->
-            if (isValidAmount(newValue)) {
+            if (viewModel.isValidPrice(newValue)) {
                 onValueChange(newValue)
             }
         },
@@ -169,12 +173,16 @@ fun CashAmountTextField(amountValue: String, onValueChange: (String) -> Unit) {
 @Composable
 fun EditWorkDoneDialog(
     show: Boolean,
-    titleText:String,
+    viewModel: TallerViewModel,
+    workSelected:String,
+    titleText: String,
     workQuantity: String,
     onDismiss: () -> Unit,
-    onQuantityChange: (String) -> Unit
+    onQuantityChange: (String) -> Unit,
+    onAcceptButtonClicked: () -> Unit
 ) {
-    if(show){
+
+    if (show) {
         Dialog(
             onDismissRequest = { onDismiss() }
         ) {
@@ -202,7 +210,7 @@ fun EditWorkDoneDialog(
                     Spacer(Modifier.size(8.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    SelectWorkTextField()
+                    SelectWorkTextField(viewModel, workSelected)
                     Spacer(Modifier.size(16.dp))
                     WorkQuantityTextFieldItem(
                         workQuantity,
@@ -210,7 +218,7 @@ fun EditWorkDoneDialog(
                     )
                     Spacer(Modifier.size(32.dp))
                     AcceptDeclineButtons(
-                        onAccept = { },
+                        onAccept = { onAcceptButtonClicked() },
                         onDecline = { onDismiss() }
                     )
                 }
@@ -247,10 +255,9 @@ fun WorkQuantityTextFieldItem(workQuantity: String, onValueChange: (String) -> U
 
 
 @Composable
-fun SelectWorkTextField() {
+fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
 
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    var workSelectedValue by rememberSaveable { mutableStateOf("") }
+    val expanded = viewModel.showWorkDropdownMenu.collectAsState()
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
         TextField(
@@ -263,7 +270,7 @@ fun SelectWorkTextField() {
                 disabledTextColor = Color.White,
                 disabledIndicatorColor = ButtonColor
             ),
-            modifier = Modifier.clickable { expanded = true },
+            modifier = Modifier.clickable { viewModel.updateShowWorkDoneDropdownMenu(true) },
             trailingIcon = {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
@@ -273,11 +280,11 @@ fun SelectWorkTextField() {
             }
         )
         SelectWorkDropdownMenu(
-            expanded,
-            onDismiss = { expanded = false },
+            expanded.value,
+            onDismiss = { viewModel.updateShowWorkDoneDropdownMenu(false) },
             onItemSelectedChange = {
-                workSelectedValue = it
-                expanded = false
+                viewModel.updateWorkSelectedValue(it)
+                viewModel.updateShowWorkDoneDropdownMenu(false)
             })
     }
 }
@@ -307,11 +314,3 @@ fun SelectWorkDropdownMenu(
 }
 
 
-fun isValidAmount(amount: String): Boolean {
-    return amount.matches(Regex("\\d+,\\d*")) ||
-            amount.isDigitsOnly()
-}
-
-fun hasAllCorrectFields(amount: String, paymentMethod: String): Boolean {
-    return amount.isNotEmpty() && paymentMethod.isNotEmpty()
-}
