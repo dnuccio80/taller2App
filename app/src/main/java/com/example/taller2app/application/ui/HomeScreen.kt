@@ -2,6 +2,7 @@ package com.example.taller2app.application.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,12 +45,14 @@ import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.TextColor
-import kotlin.math.exp
 
 @Composable
 fun HomeScreen(innerPadding: PaddingValues) {
 
     var showPaymentDialog by rememberSaveable { mutableStateOf(false) }
+    var showEditWorkDialog by rememberSaveable { mutableStateOf(false) }
+    var showAddWorkDialog by rememberSaveable { mutableStateOf(false) }
+    var quantityEditedWork by rememberSaveable { mutableStateOf("") }
 
     Box(
         Modifier
@@ -71,16 +73,33 @@ fun HomeScreen(innerPadding: PaddingValues) {
             Spacer(Modifier.size(16.dp))
             BalanceCardItem()
             Spacer(Modifier.size(16.dp))
-            WorkDoneCardItem()
+            WorkDoneCardItem() { showEditWorkDialog = true }
             Spacer(Modifier.size(16.dp))
             PaymentReceivedCardItem()
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
             innerPadding,
-            onNewWorkClicked = {},
+            onNewWorkClicked = { showAddWorkDialog = true },
             onNewPaymentClicked = { showPaymentDialog = true })
         NewPaymentDialog(showPaymentDialog) { showPaymentDialog = false }
+        EditWorkDoneDialog(
+            showEditWorkDialog,
+            titleText = stringResource(R.string.edit_work_done),
+            onDismiss = { showEditWorkDialog = false },
+            workQuantity = quantityEditedWork,
+            onQuantityChange = { quantityEditedWork = it }
+        )
+        EditWorkDoneDialog(
+            showAddWorkDialog,
+            titleText = stringResource(R.string.add_new_work),
+            onDismiss = {
+                showAddWorkDialog = false
+                quantityEditedWork = ""
+            },
+            workQuantity = quantityEditedWork,
+            onQuantityChange = { quantityEditedWork = it }
+        )
     }
 }
 
@@ -178,7 +197,7 @@ fun PaymentCardItem() {
 }
 
 @Composable
-private fun WorkDoneCardItem() {
+private fun WorkDoneCardItem(onEditWorkButtonClicked: () -> Unit) {
     Card(
         Modifier
             .fillMaxWidth()
@@ -219,7 +238,10 @@ private fun WorkDoneCardItem() {
                         Icon(
                             Icons.Filled.Edit,
                             contentDescription = "edit work",
-                            tint = Color.White
+                            tint = Color.White,
+                            modifier = Modifier.clickable {
+                                onEditWorkButtonClicked()
+                            }
                         )
                     }
                 }

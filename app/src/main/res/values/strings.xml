@@ -17,4 +17,6 @@
     <string name="decline">Decline</string>
     <string name="add_new_work">Add new work</string>
     <string name="add_new_payment">Add new payment</string>
+    <string name="edit_work_done">Edit work done</string>
+    <string name="quantity">Quantity</string>
 </resources>
