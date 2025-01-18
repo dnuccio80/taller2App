@@ -210,7 +210,7 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentRecei
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(paymentReceivedList.value){
+                items(paymentReceivedList.value) {
                     PaymentCardItem(it)
                 }
             }
@@ -219,7 +219,7 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentRecei
 }
 
 @Composable
-fun PaymentCardItem(payment:PaymentReceivedDataClass) {
+fun PaymentCardItem(payment: PaymentReceivedDataClass) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -269,7 +269,7 @@ private fun WorkDoneCardItem(
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(workDoneList.value){
+                items(workDoneList.value) {
                     WorkItem(it, onEditWorkButtonClicked)
                 }
             }
@@ -279,13 +279,13 @@ private fun WorkDoneCardItem(
 }
 
 @Composable
-fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked:() -> Unit){
+fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BodyTextItem(work.description, Modifier.weight(1f))
-        BodyTextItem("x ${work.quantity}", Modifier.weight(.3f) )
+        BodyTextItem("x ${work.quantity}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
         BodyTextItem("$ ${work.formatNumber(work.totalPrice)}", Modifier.weight(.5f))
         Spacer(Modifier.width(16.dp))
@@ -299,7 +299,6 @@ fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked:() -> Unit){
         )
     }
 }
-
 
 
 @Composable

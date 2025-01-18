@@ -1,0 +1,9 @@
+package com.example.taller2app.application.domain.works
+
+import com.example.taller2app.application.data.WorkRepository
+import com.example.taller2app.application.ui.dataClasses.WorkDataClass
+import javax.inject.Inject
+
+class DeleteWorkUseCase @Inject constructor(private val workRepository: WorkRepository) {
+    suspend operator fun invoke(work:WorkDataClass) = workRepository.deleteWork(work)
+}
