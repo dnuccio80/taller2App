@@ -2,14 +2,25 @@ package com.example.taller2app.application.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.taller2app.application.domain.works.AddNewWorkUseCase
+import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
 import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.lang.Thread.State
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -18,7 +29,10 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class TallerViewModel @Inject constructor() : ViewModel() {
+class TallerViewModel @Inject constructor(
+    getAllWorkListUseCase: GetAllWorkListUseCase,
+    private val addNewWorkUseCase: AddNewWorkUseCase,
+) : ViewModel() {
 
     // Testing values
 
@@ -44,8 +58,8 @@ class TallerViewModel @Inject constructor() : ViewModel() {
     private val _showEditWorkDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showEditWorkDialog: StateFlow<Boolean> = _showEditWorkDialog
 
-    private val _showAddWorkDialog = MutableStateFlow(false)
-    val showAddWorkDialog: StateFlow<Boolean> = _showAddWorkDialog
+    private val _showAddNewWorkDoneDialog = MutableStateFlow(false)
+    val showAddNewWorkDoneDialog: StateFlow<Boolean> = _showAddNewWorkDoneDialog
 
     private val _quantityEditedWork = MutableStateFlow("")
     val quantityEditedWork: StateFlow<String> = _quantityEditedWork
@@ -60,6 +74,21 @@ class TallerViewModel @Inject constructor() : ViewModel() {
 
     private val _searchWorkText = MutableStateFlow("")
     val searchWorkText: StateFlow<String> = _searchWorkText
+
+    private val _addNewWorkDescription = MutableStateFlow("")
+    val addNewWorkDescription: StateFlow<String> = _addNewWorkDescription
+
+    private val _unitPriceNewWorkText = MutableStateFlow("")
+    val unitPriceNewWorkText: StateFlow<String> = _unitPriceNewWorkText
+
+    private val _showAddNewWorkDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val showAddNewWorkDialog: StateFlow<Boolean> = _showAddNewWorkDialog
+
+    private val _workList = getAllWorkListUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
+    val workList = _workList
+
 
     // BottomBar
 
@@ -98,7 +127,7 @@ class TallerViewModel @Inject constructor() : ViewModel() {
     }
 
     fun updateShowAddWorkDialog(value: Boolean) {
-        _showAddWorkDialog.value = value
+        _showAddNewWorkDoneDialog.value = value
     }
 
     fun updateQuantityEditedWork(value: String) {
@@ -126,8 +155,31 @@ class TallerViewModel @Inject constructor() : ViewModel() {
 
     // Work List Screen
 
+    fun updateShowAddNewWorkDialog(value: Boolean) {
+        _showAddNewWorkDialog.value = value
+    }
+
     fun updateSearchWorkText(value: String) {
         _searchWorkText.value = value
+    }
+
+    fun updateAddNewWorkDescription(value: String) {
+        _addNewWorkDescription.value = value
+    }
+
+    fun updateUnitPriceNewWorkText(value:String){
+        _unitPriceNewWorkText.value = value
+    }
+
+    fun addNewWork(description:String,unitPrice:Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            addNewWorkUseCase(description,unitPrice)
+        }
+    }
+
+    fun clearAddWorkListDialogData(){
+        _addNewWorkDescription.value = ""
+        _unitPriceNewWorkText.value = ""
     }
 
     // Bottom Bar
@@ -168,6 +220,11 @@ class TallerViewModel @Inject constructor() : ViewModel() {
 
     fun hasAllCorrectFields(amount: String, listValue: String): Boolean {
         return amount.isNotEmpty() && listValue.isNotEmpty()
+    }
+
+    fun formatNumber(value: Int): String {
+        val formatter = NumberFormat.getInstance(Locale("es", "AR"))
+        return formatter.format(value)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -18,7 +18,9 @@ import com.example.taller2app.application.ui.HomeScreen
 import com.example.taller2app.application.ui.TallerViewModel
 import com.example.taller2app.application.ui.WorkListScreen
 import com.example.taller2app.ui.theme.Taller2AppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel:TallerViewModel by viewModels()
@@ -36,14 +38,14 @@ class MainActivity : ComponentActivity() {
                         BottomBarItem(navController, viewModel)
                     }
                 ) { innerPadding ->
-                    NavHost(navController, startDestination = Routes.Home.route) {
-                        composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
-                        composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
-                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
-                    }
+//                    NavHost(navController, startDestination = Routes.Home.route) {
+//                        composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
+//                        composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
+//                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
+//                    }
 
 
-//                    WorkListScreen(innerPadding)
+                    WorkListScreen(innerPadding,viewModel)
 //                    AnnotationsScreen(innerPadding)
 //                    HomeScreen(innerPadding)
                 }

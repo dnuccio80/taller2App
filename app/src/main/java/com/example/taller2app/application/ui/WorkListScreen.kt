@@ -37,28 +37,20 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
-import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val searchWorkText = viewModel.searchWorkText.collectAsState()
+    val workList = viewModel.workList.collectAsState()
+    val showAddNewWorkDialog = viewModel.showAddNewWorkDialog.collectAsState()
 
-    val workList = listOf(
-        WorkDataClass("Tubo torneado", 5400),
-        WorkDataClass("Tubo agujereado", 600),
-        WorkDataClass("Cuñas torneado", 800),
-        WorkDataClass("Cuñas agujereado", 300),
-    )
+    val addNewWorkDescription = viewModel.addNewWorkDescription.collectAsState()
+    val unitPriceNewWorkText = viewModel.unitPriceNewWorkText.collectAsState()
 
     Box(
         Modifier
@@ -79,17 +71,44 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             SearchWorkTextField(searchWorkText.value) { viewModel.updateSearchWorkText(it) }
             Spacer(Modifier.size(16.dp))
             LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(workList){
-                    WorkCardItem(
-                        description = it.description,
-                        unitPrice = it.unitPrice,
-                        dateModified = viewModel.getLocalDate(it.dateModified)
-                    )
+                if (workList.value.isEmpty()) {
+                    item {
+                        Text(stringResource(R.string.no_works_found))
+                    }
+                } else {
+                    items(workList.value) {
+                        WorkCardItem(
+                            description = it.description,
+                            unitPrice = it.unitPrice,
+                            dateModified = viewModel.getLocalDate(it.dateModified)
+                        )
+                    }
                 }
             }
         }
-        SimpleFabItem(Modifier.align(Alignment.BottomEnd), innerPadding)
-
+        SimpleFabItem(
+            Modifier.align(Alignment.BottomEnd),
+            innerPadding
+        ) { viewModel.updateShowAddNewWorkDialog(true) }
+        AddNewWorkDialog(
+            showAddNewWorkDialog.value,
+            addNewWorkDescription.value,
+            unitPriceNewWorkText.value,
+            onWorkDescriptionChange = { viewModel.updateAddNewWorkDescription(it) },
+            onUnitPriceChange = { viewModel.updateUnitPriceNewWorkText(it) },
+            onDismiss = { viewModel.updateShowAddNewWorkDialog(false) },
+            onAcceptButtonClicked = {
+                if(viewModel.hasAllCorrectFields(addNewWorkDescription.value, unitPriceNewWorkText.value)) {
+                    viewModel.addNewWork(addNewWorkDescription.value, unitPriceNewWorkText.value.toInt())
+                    viewModel.clearAddWorkListDialogData()
+                    viewModel.updateShowAddNewWorkDialog(false)
+                }
+            },
+            onDeclineButtonClicked = {
+                viewModel.updateShowAddNewWorkDialog(false)
+                viewModel.clearAddWorkListDialogData()
+            },
+        )
     }
 }
 
@@ -108,7 +127,7 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
         trailingIcon = {
             Icon(
                 Icons.Filled.Search,
-                contentDescription = "Searh work button",
+                contentDescription = "Search work button",
                 tint = Color.White
             )
         },
@@ -121,13 +140,16 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WorkCardItem(description:String, unitPrice:Int, dateModified:String) {
+fun WorkCardItem(description: String, unitPrice: Int, dateModified: String) {
     Card(
         Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),
-        border = BorderStroke(1.dp, brush = Brush.verticalGradient(listOf(AppBackground, ButtonColor)))
+        border = BorderStroke(
+            1.dp,
+            brush = Brush.verticalGradient(listOf(AppBackground, ButtonColor))
+        )
     ) {
         Row(
             Modifier
@@ -143,5 +165,6 @@ fun WorkCardItem(description:String, unitPrice:Int, dateModified:String) {
     }
 
 }
+
 
 

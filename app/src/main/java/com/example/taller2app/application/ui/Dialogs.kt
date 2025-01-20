@@ -176,9 +176,9 @@ fun CashAmountTextField(
 fun EditWorkDoneDialog(
     show: Boolean,
     viewModel: TallerViewModel,
-    acceptText:String,
-    declineText:String,
-    workSelected:String,
+    acceptText: String,
+    declineText: String,
+    workSelected: String,
     titleText: String,
     workQuantity: String,
     onDismiss: () -> Unit,
@@ -317,6 +317,92 @@ fun SelectWorkDropdownMenu(
         }
 
     }
+}
+
+@Composable
+fun AddNewWorkDialog(
+    show: Boolean,
+    addNewWorkDescription:String,
+    unitPriceNewWorkText:String,
+    onDismiss: () -> Unit,
+    onWorkDescriptionChange: (String) -> Unit,
+    onUnitPriceChange: (String) -> Unit,
+    onAcceptButtonClicked: () -> Unit,
+    onDeclineButtonClicked: () -> Unit
+) {
+
+
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() }
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.add_new_work),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(4.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    TextField(
+                        value = addNewWorkDescription,
+                        onValueChange = { onWorkDescriptionChange(it) },
+                        placeholder = { Text(stringResource(R.string.work_description)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        ),
+                    )
+                    TextField(value = unitPriceNewWorkText,
+                        onValueChange = {
+                            if (it.isDigitsOnly()) {
+                                onUnitPriceChange(it)
+                            }
+                        },
+                        label = { Text(stringResource(R.string.unit_price)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        leadingIcon = {
+                            Icon(
+                                painterResource(R.drawable.ic_cash),
+                                contentDescription = "cash icon",
+                                tint = Color.White
+                            )
+                        }
+                    )
+                    Spacer(Modifier.size(32.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
+                        onAccept = { onAcceptButtonClicked() },
+                        onDecline = { onDeclineButtonClicked() }
+                    )
+                }
+            }
+        }
+    }
+
 }
 
 

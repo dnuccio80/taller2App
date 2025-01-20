@@ -25,10 +25,10 @@ import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.TextColor
 
 @Composable
-fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues) {
+fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues, onClick: () -> Unit) {
 
     FloatingActionButton(
-        onClick = { },
+        onClick = { onClick() },
         modifier = modifier.padding(
             bottom = innerPadding.calculateBottomPadding() + 16.dp,
             end = 8.dp
@@ -42,7 +42,12 @@ fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues) {
 }
 
 @Composable
-fun AcceptDeclineButtons(acceptText: String, declineText: String, onAccept: () -> Unit, onDecline: () -> Unit) {
+fun AcceptDeclineButtons(
+    acceptText: String,
+    declineText: String,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
         ButtonItem(acceptText) { onAccept() }
         ButtonItem(declineText) { onDecline() }
@@ -69,8 +74,17 @@ fun TitleItem(text: String) {
 }
 
 @Composable
-fun BodyTextItem(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
-    Text(text, style = MaterialTheme.typography.bodyLarge, modifier = modifier, textAlign = textAlign)
+fun BodyTextItem(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    Text(
+        text,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = modifier,
+        textAlign = textAlign
+    )
 }
 
 @Composable

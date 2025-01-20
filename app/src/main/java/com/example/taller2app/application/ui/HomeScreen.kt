@@ -55,7 +55,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val showPaymentDialog = viewModel.showPaymentDialog.collectAsState()
     val showEditWorkDialog = viewModel.showEditWorkDialog.collectAsState()
-    val showAddWorkDialog = viewModel.showAddWorkDialog.collectAsState()
+    val showAddWorkDialog = viewModel.showAddNewWorkDoneDialog.collectAsState()
     val quantityEditedWork = viewModel.quantityEditedWork.collectAsState()
     val workSelectedValue = viewModel.workSelectedValue.collectAsState()
 

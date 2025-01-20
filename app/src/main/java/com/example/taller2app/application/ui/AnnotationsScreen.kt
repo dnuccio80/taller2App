@@ -59,7 +59,7 @@ fun AnnotationsScreen(innerPadding: PaddingValues) {
                 }
             }
         }
-        SimpleFabItem(Modifier.align(Alignment.BottomEnd), innerPadding)
+        SimpleFabItem(Modifier.align(Alignment.BottomEnd), innerPadding) { }
     }
 }
 
