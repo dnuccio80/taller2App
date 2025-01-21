@@ -284,7 +284,7 @@ fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked: () -> Unit) {
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem(work.description, Modifier.weight(1f))
+        BodyTextItem(work.workDataClass.description, Modifier.weight(1f))
         BodyTextItem("x ${work.quantity}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
         BodyTextItem("$ ${work.formatNumber(work.totalPrice)}", Modifier.weight(.5f))

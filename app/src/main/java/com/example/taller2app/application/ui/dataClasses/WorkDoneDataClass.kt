@@ -4,10 +4,9 @@ import java.text.NumberFormat
 import java.util.Locale
 
 data class WorkDoneDataClass(
-    val description:String,
+    val workDataClass:WorkDataClass,
     val quantity:Int,
-    val unitPrice:Int,
-    val totalPrice:Int = quantity * unitPrice
+    val totalPrice:Int = quantity * workDataClass.unitPrice
 )
 
 fun WorkDoneDataClass.formatNumber(value: Int): String {

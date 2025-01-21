@@ -45,9 +45,9 @@ class MainActivity : ComponentActivity() {
 //                    }
 
 
-                    WorkListScreen(innerPadding,viewModel)
+//                    WorkListScreen(innerPadding,viewModel)
 //                    AnnotationsScreen(innerPadding)
-//                    HomeScreen(innerPadding)
+                    HomeScreen(innerPadding,viewModel)
                 }
             }
         }
