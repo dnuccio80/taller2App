@@ -38,16 +38,16 @@ class MainActivity : ComponentActivity() {
                         BottomBarItem(navController, viewModel)
                     }
                 ) { innerPadding ->
-//                    NavHost(navController, startDestination = Routes.Home.route) {
-//                        composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
-//                        composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
-//                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
-//                    }
+                    NavHost(navController, startDestination = Routes.Home.route) {
+                        composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
+                        composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
+                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
+                    }
 
 
 //                    WorkListScreen(innerPadding,viewModel)
 //                    AnnotationsScreen(innerPadding)
-                    HomeScreen(innerPadding,viewModel)
+//                    HomeScreen(innerPadding,viewModel)
                 }
             }
         }

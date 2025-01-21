@@ -101,6 +101,11 @@ class TallerViewModel @Inject constructor(
 
     // Work List Screen
 
+    private val _workList = getAllWorkListUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
+    val workList = _workList
+
     private val _searchWorkText = MutableStateFlow("")
     val searchWorkText: StateFlow<String> = _searchWorkText
 
@@ -112,11 +117,6 @@ class TallerViewModel @Inject constructor(
 
     private val _showAddNewWorkDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showAddNewWorkDialog: StateFlow<Boolean> = _showAddNewWorkDialog
-
-    private val _workList = getAllWorkListUseCase().stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
-    )
-    val workList = _workList
 
 
     // BottomBar

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
 import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
+import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.ui.theme.AppBackground
@@ -118,18 +119,15 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 }
             }
         )
-        EditWorkDoneDialog(
-            showAddWorkDialog.value,
+        AddNewWorkDoneDialog(
+            show = showAddWorkDialog.value,
             viewModel = viewModel,
             workSelected = workSelectedValue.value,
-            titleText = stringResource(R.string.add_new_work),
-            acceptText = stringResource(R.string.accept),
-            declineText = stringResource(R.string.decline),
+            workQuantity = quantityEditedWork.value,
             onDismiss = {
                 viewModel.updateShowAddWorkDialog(false)
                 viewModel.updateQuantityEditedWork("")
             },
-            workQuantity = quantityEditedWork.value,
             onQuantityChange = { viewModel.updateQuantityEditedWork(it) },
             onAcceptButtonClicked = {
                 if (viewModel.hasAllCorrectFields(

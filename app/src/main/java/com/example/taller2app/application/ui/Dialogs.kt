@@ -1,5 +1,6 @@
 package com.example.taller2app.application.ui
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -239,6 +241,63 @@ fun EditWorkDoneDialog(
 }
 
 @Composable
+fun AddNewWorkDoneDialog(
+    show: Boolean,
+    viewModel: TallerViewModel,
+    workSelected: String,
+    workQuantity: String,
+    onDismiss: () -> Unit,
+    onQuantityChange: (String) -> Unit,
+    onAcceptButtonClicked: () -> Unit
+) {
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() }
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.add_new_work),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    SelectWorkTextField(viewModel, workSelected)
+                    Spacer(Modifier.size(16.dp))
+                    WorkQuantityTextFieldItem(
+                        workQuantity,
+                        onValueChange = { onQuantityChange(it) }
+                    )
+                    Spacer(Modifier.size(32.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
+                        onAccept = { onAcceptButtonClicked() },
+                        onDecline = { onDismiss() }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun WorkQuantityTextFieldItem(workQuantity: String, onValueChange: (String) -> Unit) {
 
     TextField(value = workQuantity,
@@ -268,6 +327,7 @@ fun WorkQuantityTextFieldItem(workQuantity: String, onValueChange: (String) -> U
 fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
 
     val expanded = viewModel.showWorkDropdownMenu.collectAsState()
+    val workList = viewModel.workList.collectAsState()
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
         TextField(
@@ -280,7 +340,10 @@ fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
                 disabledTextColor = Color.White,
                 disabledIndicatorColor = ButtonColor
             ),
-            modifier = Modifier.clickable { viewModel.updateShowWorkDoneDropdownMenu(true) },
+            modifier = Modifier.clickable {
+                viewModel.updateShowWorkDoneDropdownMenu(true)
+                Log.i("Damian", "${workList.value}")
+            },
             trailingIcon = {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
@@ -291,34 +354,41 @@ fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
         )
         SelectWorkDropdownMenu(
             expanded.value,
+            workList,
             onDismiss = { viewModel.updateShowWorkDoneDropdownMenu(false) },
             onItemSelectedChange = {
                 viewModel.updateWorkSelectedValue(it)
                 viewModel.updateShowWorkDoneDropdownMenu(false)
-            })
+            }
+        )
     }
 }
 
 @Composable
 fun SelectWorkDropdownMenu(
     expanded: Boolean,
+    workList: State<List<WorkDataClass>>,
     onDismiss: () -> Unit,
     onItemSelectedChange: (String) -> Unit
 ) {
-
-    val list = listOf("Tubo torneado", "Pintura", "Manzana")
 
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { onDismiss() },
         modifier = Modifier.background(ContrastColor)
     ) {
-        list.forEach {
+        workList.value.forEach {
             DropdownMenuItem(
-                text = { Text(it) },
-                onClick = { onItemSelectedChange(it) }
+                text = { Text(it.description) },
+                onClick = { onItemSelectedChange(it.description) }
             )
         }
+//        workList.forEach {
+//            DropdownMenuItem(
+//                text = { Text() },
+//                onClick = { onItemSelectedChange(it) }
+//            )
+//        }
 
     }
 }
@@ -486,7 +556,7 @@ fun ModifyWorkInListDialog(
                         declineText = stringResource(R.string.delete),
                         declineContainerColor = Color.Red,
                         onAccept = {
-                            if(descriptionText.isNotEmpty() && unitPriceText.isNotEmpty()){
+                            if (descriptionText.isNotEmpty() && unitPriceText.isNotEmpty()) {
                                 onAcceptButtonClick(
                                     workDataClass.copy(
                                         description = descriptionText,
