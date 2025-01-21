@@ -28,6 +28,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
@@ -322,8 +326,8 @@ fun SelectWorkDropdownMenu(
 @Composable
 fun AddNewWorkDialog(
     show: Boolean,
-    addNewWorkDescription:String,
-    unitPriceNewWorkText:String,
+    addNewWorkDescription: String,
+    unitPriceNewWorkText: String,
     onDismiss: () -> Unit,
     onWorkDescriptionChange: (String) -> Unit,
     onUnitPriceChange: (String) -> Unit,
@@ -405,4 +409,96 @@ fun AddNewWorkDialog(
 
 }
 
+@Composable
+fun ModifyWorkInListDialog(
+    show: Boolean,
+    workDataClass: WorkDataClass,
+    onDismiss: () -> Unit,
+    onAcceptButtonClick: (WorkDataClass) -> Unit,
+    onDeleteButtonClick: (WorkDataClass) -> Unit
+) {
 
+    var descriptionText by rememberSaveable { mutableStateOf(workDataClass.description) }
+    var unitPriceText by rememberSaveable { mutableStateOf(workDataClass.unitPrice.toString()) }
+
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() }
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.edit_work),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(4.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    TextField(
+                        value = descriptionText,
+                        onValueChange = { descriptionText = it },
+                        placeholder = { Text(stringResource(R.string.work_description)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        ),
+                    )
+                    TextField(value = unitPriceText,
+                        onValueChange = {
+                            if (it.isDigitsOnly()) {
+                                unitPriceText = it
+                            }
+                        },
+                        label = { Text(stringResource(R.string.unit_price)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        leadingIcon = {
+                            Icon(
+                                painterResource(R.drawable.ic_cash),
+                                contentDescription = "cash icon",
+                                tint = Color.White
+                            )
+                        }
+                    )
+                    Spacer(Modifier.size(32.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.delete),
+                        declineContainerColor = Color.Red,
+                        onAccept = {
+                            if(descriptionText.isNotEmpty() && unitPriceText.isNotEmpty()){
+                                onAcceptButtonClick(
+                                    workDataClass.copy(
+                                        description = descriptionText,
+                                        unitPrice = unitPriceText.toInt()
+                                    )
+                                )
+                            }
+                        },
+                        onDecline = { onDeleteButtonClick(workDataClass) }
+                    )
+                }
+            }
+        }
+    }
+}

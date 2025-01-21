@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,6 +30,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -35,8 +41,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.dataClasses.WorkDataClass
+import com.example.taller2app.application.ui.dataClasses.formatNumber
+import com.example.taller2app.application.ui.dataClasses.getLocalDate
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
@@ -78,9 +88,13 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 } else {
                     items(workList.value) {
                         WorkCardItem(
-                            description = it.description,
-                            unitPrice = it.unitPrice,
-                            dateModified = viewModel.getLocalDate(it.dateModified)
+                            it,
+                            onAcceptButtonClick = { editedWorkData ->
+                                viewModel.updateWorkInWorkList(
+                                    editedWorkData
+                                )
+                            },
+                            onDeleteButtonClick = {workData -> viewModel.deleteWorkInWorkList(workData) },
                         )
                     }
                 }
@@ -98,8 +112,15 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             onUnitPriceChange = { viewModel.updateUnitPriceNewWorkText(it) },
             onDismiss = { viewModel.updateShowAddNewWorkDialog(false) },
             onAcceptButtonClicked = {
-                if(viewModel.hasAllCorrectFields(addNewWorkDescription.value, unitPriceNewWorkText.value)) {
-                    viewModel.addNewWork(addNewWorkDescription.value, unitPriceNewWorkText.value.toInt())
+                if (viewModel.hasAllCorrectFields(
+                        addNewWorkDescription.value,
+                        unitPriceNewWorkText.value
+                    )
+                ) {
+                    viewModel.addNewWork(
+                        addNewWorkDescription.value,
+                        unitPriceNewWorkText.value.toInt()
+                    )
                     viewModel.clearAddWorkListDialogData()
                     viewModel.updateShowAddNewWorkDialog(false)
                 }
@@ -140,7 +161,14 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WorkCardItem(description: String, unitPrice: Int, dateModified: String) {
+fun WorkCardItem(
+    workDataClass: WorkDataClass,
+    onAcceptButtonClick: (WorkDataClass) -> Unit,
+    onDeleteButtonClick: (WorkDataClass) -> Unit,
+) {
+
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+
     Card(
         Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -157,10 +185,39 @@ fun WorkCardItem(description: String, unitPrice: Int, dateModified: String) {
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(description, modifier = Modifier.weight(1f))
-            Text("$ $unitPrice", modifier = Modifier.padding(16.dp))
-            Text(dateModified, modifier = Modifier.padding(16.dp))
-            Icon(Icons.Filled.Edit, contentDescription = "Edit work", tint = Color.White)
+            Text(workDataClass.description, modifier = Modifier.weight(.5f))
+            Text(
+                "$ ${workDataClass.formatNumber(workDataClass.unitPrice)}", modifier = Modifier
+                    .padding(16.dp)
+                    .weight(.5f), textAlign = TextAlign.Start
+            )
+            Text(
+                workDataClass.getLocalDate(workDataClass.dateModified), modifier = Modifier
+                    .padding(16.dp)
+                    .weight(.5f)
+            )
+            Icon(
+                Icons.Filled.Edit,
+                contentDescription = "Edit work",
+                tint = Color.White,
+                modifier = Modifier.clickable {
+                    showDialog = true
+                })
+            ModifyWorkInListDialog(
+                showDialog,
+                workDataClass,
+                onDismiss = {
+                    showDialog = false
+                },
+                onAcceptButtonClick = {
+                    onAcceptButtonClick(it)
+                    showDialog = false
+                },
+                onDeleteButtonClick = {
+                    onDeleteButtonClick(it)
+                    showDialog = false
+                }
+            )
         }
     }
 

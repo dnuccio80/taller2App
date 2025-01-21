@@ -19,6 +19,7 @@
     <string name="delete">Delete</string>
     <string name="decline">Decline</string>
     <string name="add_new_work">Add new work</string>
+    <string name="edit_work">Edit work</string>
     <string name="work_description">Work description here</string>
     <string name="add_new_payment">Add new payment</string>
     <string name="no_works_found">No works found</string>

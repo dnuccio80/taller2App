@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,23 +46,32 @@ fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues, onClick: () -
 fun AcceptDeclineButtons(
     acceptText: String,
     declineText: String,
+    acceptContainerColor: Color = ButtonColor,
+    acceptContentColor: Color = TextColor,
+    declineContainerColor: Color = ButtonColor,
+    declineContentColor: Color = TextColor,
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-        ButtonItem(acceptText) { onAccept() }
-        ButtonItem(declineText) { onDecline() }
+        ButtonItem(acceptText, containerColor = acceptContainerColor, contentColor = acceptContentColor, onClick = { onAccept() })
+        ButtonItem(declineText, containerColor = declineContainerColor, contentColor = declineContentColor, onClick = { onDecline() })
     }
 }
 
 @Composable
-fun ButtonItem(text: String, onClick: () -> Unit) {
+fun ButtonItem(
+    text: String,
+    containerColor: Color = ButtonColor,
+    contentColor: Color = TextColor,
+    onClick: () -> Unit
+) {
     Button(
         onClick = { onClick() },
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = ButtonColor,
-            contentColor = TextColor
+            containerColor = containerColor,
+            contentColor = contentColor
         )
     ) {
         Text(text)

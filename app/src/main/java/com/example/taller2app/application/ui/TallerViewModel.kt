@@ -10,8 +10,11 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taller2app.application.domain.works.AddNewWorkUseCase
+import com.example.taller2app.application.domain.works.DeleteWorkUseCase
 import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
+import com.example.taller2app.application.domain.works.UpdateWorkUseCase
 import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
+import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +35,8 @@ import javax.inject.Inject
 class TallerViewModel @Inject constructor(
     getAllWorkListUseCase: GetAllWorkListUseCase,
     private val addNewWorkUseCase: AddNewWorkUseCase,
+    private val updateWorkUseCase: UpdateWorkUseCase,
+    private val deleteWorkUseCase: DeleteWorkUseCase
 ) : ViewModel() {
 
     // Testing values
@@ -177,6 +182,18 @@ class TallerViewModel @Inject constructor(
         }
     }
 
+    fun updateWorkInWorkList(workDataClass: WorkDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            updateWorkUseCase(workDataClass)
+        }
+    }
+
+    fun deleteWorkInWorkList(workDataClass: WorkDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteWorkUseCase(workDataClass)
+        }
+    }
+
     fun clearAddWorkListDialogData(){
         _addNewWorkDescription.value = ""
         _unitPriceNewWorkText.value = ""
@@ -222,11 +239,6 @@ class TallerViewModel @Inject constructor(
         return amount.isNotEmpty() && listValue.isNotEmpty()
     }
 
-    fun formatNumber(value: Int): String {
-        val formatter = NumberFormat.getInstance(Locale("es", "AR"))
-        return formatter.format(value)
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun getLocalDate(dateModified: Long): String {
         val format = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -235,8 +247,4 @@ class TallerViewModel @Inject constructor(
             .toLocalDateTime()
         return localDateTime.format(format)
     }
-
-
-
-
 }
