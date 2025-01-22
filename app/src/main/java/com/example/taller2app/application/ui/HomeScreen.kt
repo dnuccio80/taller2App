@@ -32,6 +32,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +64,28 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
     val workDoneList = viewModel.workDoneList.collectAsState()
     val paymentReceivedList = viewModel.paymentReceivedList.collectAsState()
 
+
+    // Saver for SelectedWorkDataClass
+    val workDataClassSaver = Saver<WorkDataClass, List<Any>>(
+        save = { workData ->
+            listOf(
+                workData.id,
+                workData.description,
+                workData.unitPrice,
+                workData.dateModified
+            )
+        },
+        restore = { list ->
+            WorkDataClass(
+                id = list[0] as Int,
+                description = list[1] as String,
+                unitPrice = list[2] as Int,
+                dateModified = list[3] as Long
+            )
+        }
+    )
+
+    var selectedWorkDataClass by rememberSaveable(stateSaver = workDataClassSaver) {  mutableStateOf<WorkDataClass>(WorkDataClass(description = "", unitPrice = 0)) }
 
     Box(
         Modifier
@@ -134,10 +157,17 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                         workSelectedValue.value
                     )
                 ) {
+                    viewModel.addNewWorkDone(
+                        WorkDoneDataClass(
+                            workDataClass = selectedWorkDataClass!!,
+                            quantity = quantityEditedWork.value.toInt()
+                        )
+                    )
                     viewModel.updateShowAddWorkDialog(false)
                     viewModel.clearAddNewWorkDataDialog()
                 }
-            }
+            },
+            onWorkChange = { selectedWorkDataClass = it }
         )
     }
 }

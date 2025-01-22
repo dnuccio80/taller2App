@@ -50,6 +50,7 @@ import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.DeleteButtonColor
+import com.example.taller2app.ui.theme.TextColor
 
 @Composable
 fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
@@ -222,7 +223,7 @@ fun EditWorkDoneDialog(
                     Spacer(Modifier.size(8.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    SelectWorkTextField(viewModel, workSelected)
+                    SelectWorkTextField(viewModel, workSelected, canChangeWorkValue = false) { }
                     Spacer(Modifier.size(16.dp))
                     WorkQuantityTextFieldItem(
                         workQuantity,
@@ -232,6 +233,8 @@ fun EditWorkDoneDialog(
                     AcceptDeclineButtons(
                         acceptText = acceptText,
                         declineText = declineText,
+                        acceptContainerColor = AcceptButtonColor,
+                        declineContainerColor = DeleteButtonColor,
                         onAccept = { onAcceptButtonClicked() },
                         onDecline = { onDismiss() }
                     )
@@ -250,7 +253,8 @@ fun AddNewWorkDoneDialog(
     workQuantity: String,
     onDismiss: () -> Unit,
     onQuantityChange: (String) -> Unit,
-    onAcceptButtonClicked: () -> Unit
+    onAcceptButtonClicked: () -> Unit,
+    onWorkChange: (WorkDataClass) -> Unit
 ) {
     if (show) {
         Dialog(
@@ -280,7 +284,11 @@ fun AddNewWorkDoneDialog(
                     Spacer(Modifier.size(8.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    SelectWorkTextField(viewModel, workSelected)
+                    SelectWorkTextField(
+                        viewModel,
+                        workSelected,
+                        canChangeWorkValue = true
+                    ) { onWorkChange(it) }
                     Spacer(Modifier.size(16.dp))
                     WorkQuantityTextFieldItem(
                         workQuantity,
@@ -326,7 +334,12 @@ fun WorkQuantityTextFieldItem(workQuantity: String, onValueChange: (String) -> U
 
 
 @Composable
-fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
+fun SelectWorkTextField(
+    viewModel: TallerViewModel,
+    workSelectedValue: String,
+    canChangeWorkValue: Boolean,
+    onWorkChange: (WorkDataClass) -> Unit
+) {
 
     val expanded = viewModel.showWorkDropdownMenu.collectAsState()
     val workList = viewModel.workList.collectAsState()
@@ -339,19 +352,20 @@ fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
             enabled = false,
             colors = TextFieldDefaults.colors(
                 disabledContainerColor = CardBackground,
-                disabledTextColor = Color.White,
+                disabledTextColor = if (canChangeWorkValue) TextColor else ContrastColor,
                 disabledIndicatorColor = ButtonColor
             ),
             modifier = Modifier.clickable {
-                viewModel.updateShowWorkDoneDropdownMenu(true)
-                Log.i("Damian", "${workList.value}")
+                if (canChangeWorkValue) viewModel.updateShowWorkDoneDropdownMenu(true)
             },
             trailingIcon = {
-                Icon(
-                    Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "down arrow button",
-                    tint = Color.White
-                )
+                if (canChangeWorkValue) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "down arrow button",
+                        tint = Color.White
+                    )
+                }
             }
         )
         SelectWorkDropdownMenu(
@@ -359,6 +373,7 @@ fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
             workList,
             onDismiss = { viewModel.updateShowWorkDoneDropdownMenu(false) },
             onItemSelectedChange = {
+                onWorkChange(it)
                 viewModel.updateWorkSelectedValue(it.description)
                 viewModel.updateShowWorkDoneDropdownMenu(false)
             }

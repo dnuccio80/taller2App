@@ -15,13 +15,13 @@ interface WorkDoneDao {
     @Query("SELECT * FROM WorkDoneEntity")
     fun getAllWorkDoneList(): Flow<List<WorkDoneEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addNewWorkDone(workDone: WorkDoneEntity)
+    @Insert
+    suspend fun addNewWorkDone(workDone: WorkDoneEntity)
 
     @Delete
-    fun deleteWorkDone(workDone: WorkDoneEntity)
+    suspend fun deleteWorkDone(workDone: WorkDoneEntity)
 
     @Update
-    fun updateWorkDone(workDone: WorkDoneEntity)
+    suspend fun updateWorkDone(workDone: WorkDoneEntity)
 
 }

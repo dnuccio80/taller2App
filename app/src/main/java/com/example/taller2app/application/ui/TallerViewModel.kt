@@ -1,6 +1,7 @@
 package com.example.taller2app.application.ui
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +14,10 @@ import com.example.taller2app.application.domain.works.AddNewWorkUseCase
 import com.example.taller2app.application.domain.works.DeleteWorkUseCase
 import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
 import com.example.taller2app.application.domain.works.UpdateWorkUseCase
+import com.example.taller2app.application.domain.worksDone.AddNewWorkDoneUseCase
+import com.example.taller2app.application.domain.worksDone.DeleteWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.GetAllWorkDoneListUseCase
+import com.example.taller2app.application.domain.worksDone.UpdateWorkDoneUseCase
 import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
@@ -42,6 +46,9 @@ class TallerViewModel @Inject constructor(
 
     // Work Done
     getAllWorkDoneListUseCase: GetAllWorkDoneListUseCase,
+    private val addNewWorkDoneUseCase: AddNewWorkDoneUseCase,
+    private val updateWorkDoneUseCase: UpdateWorkDoneUseCase,
+    private val deleteWorkDoneUseCase: DeleteWorkDoneUseCase,
 
     ) : ViewModel() {
 
@@ -138,6 +145,13 @@ class TallerViewModel @Inject constructor(
 
     fun updateQuantityEditedWork(value: String) {
         _quantityEditedWork.value = value
+    }
+
+    fun addNewWorkDone(work: WorkDoneDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("Damian", "new work done added: $work")
+            addNewWorkDoneUseCase(work)
+        }
     }
 
     fun addPaymentReceived(payment: PaymentReceivedDataClass) {

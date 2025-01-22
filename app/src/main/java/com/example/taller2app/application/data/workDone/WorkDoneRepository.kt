@@ -18,11 +18,11 @@ class WorkDoneRepository @Inject constructor(private val workDoneDao: WorkDoneDa
     }
 
     suspend fun addNewWorkDone(workDone:WorkDoneDataClass) {
-        workDoneDao.deleteWorkDone(workDone.toWorkDoneDataEntity())
+        workDoneDao.addNewWorkDone(workDone.toWorkDoneDataEntity())
     }
 
     suspend fun updateWorkDone(workDone:WorkDoneDataClass){
-        workDoneDao.deleteWorkDone(workDone.toWorkDoneDataEntity())
+        workDoneDao.updateWorkDone(workDone.toWorkDoneDataEntity())
     }
 
     suspend fun deleteWorkDone(workDone:WorkDoneDataClass){

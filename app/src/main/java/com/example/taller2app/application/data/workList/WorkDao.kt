@@ -15,13 +15,13 @@ interface WorkDao {
     fun getAllWorkList(): Flow<List<WorkEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addNewWork(workEntity: WorkEntity)
+    suspend fun addNewWork(workEntity: WorkEntity)
 
     @Delete
-    fun deleteWork(workEntity: WorkEntity)
+    suspend fun deleteWork(workEntity: WorkEntity)
 
     @Update
-    fun updateWork(workEntity: WorkEntity)
+    suspend fun updateWork(workEntity: WorkEntity)
 
 
 }
