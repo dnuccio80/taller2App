@@ -106,7 +106,18 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             Spacer(Modifier.size(16.dp))
             BalanceCardItem()
             Spacer(Modifier.size(16.dp))
-            WorkDoneCardItem(workDoneList) { viewModel.updateShowEditWorkDialog(true) }
+            WorkDoneCardItem(workDoneList) {
+                // AQUI TENMOS QUE MANDAR EL VALOR DE workDoneDataClass a el viewModel?? o al dialog??
+                // VALORES QUE PASAMOS:
+                // workSelectedValue.value
+                // quantityEditedWork.value
+                /*
+                    Tener en cuenta que lo que pasamos con esos valores, no son en si el workDoneDataClass,
+                    por lo que no vamos a poder editar el valor en la lista de workDoneEntity porque no tiene
+                    el id
+                */
+                viewModel.updateShowEditWorkDialog(true)
+            }
             Spacer(Modifier.size(16.dp))
             PaymentReceivedCardItem(paymentReceivedList)
         }
@@ -265,7 +276,7 @@ fun PaymentCardItem(payment: PaymentReceivedDataClass) {
 @Composable
 private fun WorkDoneCardItem(
     workDoneList: State<List<WorkDoneDataClass>>,
-    onEditWorkButtonClicked: () -> Unit
+    onEditWorkButtonClicked: (WorkDoneDataClass) -> Unit
 ) {
 
     Card(
@@ -301,7 +312,7 @@ private fun WorkDoneCardItem(
                     }
                 } else {
                     items(workDoneList.value) {
-                        WorkItem(it, onEditWorkButtonClicked)
+                        WorkItem(it) { onEditWorkButtonClicked(it) }
                     }
                 }
             }
@@ -311,22 +322,22 @@ private fun WorkDoneCardItem(
 }
 
 @Composable
-fun WorkItem(work: WorkDoneDataClass, onEditWorkButtonClicked: () -> Unit) {
+fun WorkItem(workDoneDataClass: WorkDoneDataClass, onEditWorkButtonClicked: (WorkDoneDataClass) -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem(work.workDataClass.description, Modifier.weight(1f))
-        BodyTextItem("x ${work.quantity}", Modifier.weight(.3f))
+        BodyTextItem(workDoneDataClass.workDataClass.description, Modifier.weight(1f))
+        BodyTextItem("x ${workDoneDataClass.quantity}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
-        BodyTextItem("$ ${work.formatNumber(work.totalPrice)}", Modifier.weight(.5f))
+        BodyTextItem("$ ${workDoneDataClass.formatNumber(workDoneDataClass.totalPrice)}", Modifier.weight(.5f))
         Spacer(Modifier.width(16.dp))
         Icon(
             Icons.Filled.Edit,
             contentDescription = "edit work",
             tint = Color.White,
             modifier = Modifier.clickable {
-                onEditWorkButtonClicked()
+                onEditWorkButtonClicked(workDoneDataClass)
             }
         )
     }
