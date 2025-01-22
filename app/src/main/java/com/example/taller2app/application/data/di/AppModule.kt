@@ -3,7 +3,7 @@ package com.example.taller2app.application.data.di
 import android.app.Application
 import androidx.room.Room
 import com.example.taller2app.application.data.AppDataBase
-import com.example.taller2app.application.data.WorkDao
+import com.example.taller2app.application.data.workList.WorkDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

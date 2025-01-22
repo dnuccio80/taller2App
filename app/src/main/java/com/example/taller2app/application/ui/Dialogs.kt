@@ -45,9 +45,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import com.example.taller2app.R
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
+import com.example.taller2app.ui.theme.AcceptButtonColor
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
+import com.example.taller2app.ui.theme.DeleteButtonColor
 
 @Composable
 fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
@@ -554,7 +556,8 @@ fun ModifyWorkInListDialog(
                     AcceptDeclineButtons(
                         acceptText = stringResource(R.string.accept),
                         declineText = stringResource(R.string.delete),
-                        declineContainerColor = Color.Red,
+                        declineContainerColor = DeleteButtonColor,
+                        acceptContainerColor = AcceptButtonColor,
                         onAccept = {
                             if (descriptionText.isNotEmpty() && unitPriceText.isNotEmpty()) {
                                 onAcceptButtonClick(

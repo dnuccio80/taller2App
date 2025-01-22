@@ -1,4 +1,4 @@
-package com.example.taller2app.application.data
+package com.example.taller2app.application.data.workList
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

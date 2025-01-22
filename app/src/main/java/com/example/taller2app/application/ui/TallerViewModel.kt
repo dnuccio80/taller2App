@@ -43,32 +43,34 @@ class TallerViewModel @Inject constructor(
 
     private val listaDeWorkDone = mutableListOf(
         WorkDoneDataClass(
+            workDataClass =
             WorkDataClass(
                 id = 1,
                 description = "Tubo torneado",
                 unitPrice = 5400,
-            ), 20),
+            ), quantity =  20),
 
         WorkDoneDataClass(
+            workDataClass=
             WorkDataClass(
                 id = 1,
                 description = "Tubo agujereado",
                 unitPrice = 600,
-            ), 15),
+            ), quantity = 15),
 
         WorkDoneDataClass(
-            WorkDataClass(
+            workDataClass = WorkDataClass(
                 id = 1,
                 description = "Cuñas",
                 unitPrice = 800,
-            ), 300),
+            ), quantity = 300),
 
         WorkDoneDataClass(
-            WorkDataClass(
+            workDataClass = WorkDataClass(
                 id = 1,
                 description = "Tubo torneado",
                 unitPrice = 500,
-            ), 15),
+            ), quantity = 15),
 
     )
 

@@ -2,7 +2,7 @@ package com.example.taller2app.application.ui.dataClasses
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.taller2app.application.data.WorkEntity
+import com.example.taller2app.application.data.workList.WorkEntity
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId

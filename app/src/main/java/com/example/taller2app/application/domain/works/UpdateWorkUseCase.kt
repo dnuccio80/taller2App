@@ -1,6 +1,6 @@
 package com.example.taller2app.application.domain.works
 
-import com.example.taller2app.application.data.WorkRepository
+import com.example.taller2app.application.data.workList.WorkRepository
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import javax.inject.Inject
 

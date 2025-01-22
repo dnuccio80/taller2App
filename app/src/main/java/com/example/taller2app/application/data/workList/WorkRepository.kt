@@ -1,4 +1,4 @@
-package com.example.taller2app.application.data
+package com.example.taller2app.application.data.workList
 
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.toWorkEntity
