@@ -114,8 +114,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                     )
                 ) {
                     viewModel.updateShowEditWorkDialog(false)
-                    viewModel.updateWorkSelectedValue("")
-                    viewModel.updateQuantityEditedWork("")
+                    viewModel.clearAddNewWorkDataDialog()
                 }
             }
         )
@@ -126,7 +125,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             workQuantity = quantityEditedWork.value,
             onDismiss = {
                 viewModel.updateShowAddWorkDialog(false)
-                viewModel.updateQuantityEditedWork("")
+                viewModel.clearAddNewWorkDataDialog()
             },
             onQuantityChange = { viewModel.updateQuantityEditedWork(it) },
             onAcceptButtonClicked = {
@@ -136,8 +135,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                     )
                 ) {
                     viewModel.updateShowAddWorkDialog(false)
-                    viewModel.updateWorkSelectedValue("")
-                    viewModel.updateQuantityEditedWork("")
+                    viewModel.clearAddNewWorkDataDialog()
                 }
             }
         )

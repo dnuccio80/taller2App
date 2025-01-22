@@ -359,7 +359,7 @@ fun SelectWorkTextField(viewModel: TallerViewModel, workSelectedValue: String) {
             workList,
             onDismiss = { viewModel.updateShowWorkDoneDropdownMenu(false) },
             onItemSelectedChange = {
-                viewModel.updateWorkSelectedValue(it)
+                viewModel.updateWorkSelectedValue(it.description)
                 viewModel.updateShowWorkDoneDropdownMenu(false)
             }
         )
@@ -371,7 +371,7 @@ fun SelectWorkDropdownMenu(
     expanded: Boolean,
     workList: State<List<WorkDataClass>>,
     onDismiss: () -> Unit,
-    onItemSelectedChange: (String) -> Unit
+    onItemSelectedChange: (WorkDataClass) -> Unit
 ) {
 
     DropdownMenu(
@@ -388,7 +388,7 @@ fun SelectWorkDropdownMenu(
             workList.value.forEach {
                 DropdownMenuItem(
                     text = { Text(it.description) },
-                    onClick = { onItemSelectedChange(it.description) }
+                    onClick = { onItemSelectedChange(it) }
                 )
             }
         }

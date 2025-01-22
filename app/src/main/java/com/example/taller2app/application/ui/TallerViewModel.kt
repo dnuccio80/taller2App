@@ -219,6 +219,11 @@ class TallerViewModel @Inject constructor(
         _workSelectedValue.value = value
     }
 
+    fun clearAddNewWorkDataDialog(){
+        updateWorkSelectedValue("")
+        updateQuantityEditedWork("")
+    }
+
     // Corroborate fields
 
     fun isValidPrice(amount: String): Boolean {
