@@ -267,8 +267,14 @@ private fun WorkDoneCardItem(
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(workDoneList.value) {
-                    WorkItem(it, onEditWorkButtonClicked)
+                if (workDoneList.value.isEmpty()) {
+                    item() {
+                        Text(stringResource(R.string.no_works_found))
+                    }
+                } else {
+                    items(workDoneList.value) {
+                        WorkItem(it, onEditWorkButtonClicked)
+                    }
                 }
             }
 

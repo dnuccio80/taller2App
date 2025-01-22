@@ -13,6 +13,7 @@ import com.example.taller2app.application.domain.works.AddNewWorkUseCase
 import com.example.taller2app.application.domain.works.DeleteWorkUseCase
 import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
 import com.example.taller2app.application.domain.works.UpdateWorkUseCase
+import com.example.taller2app.application.domain.worksDone.GetAllWorkDoneListUseCase
 import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
@@ -33,46 +34,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TallerViewModel @Inject constructor(
+    // Work
     getAllWorkListUseCase: GetAllWorkListUseCase,
     private val addNewWorkUseCase: AddNewWorkUseCase,
     private val updateWorkUseCase: UpdateWorkUseCase,
-    private val deleteWorkUseCase: DeleteWorkUseCase
-) : ViewModel() {
+    private val deleteWorkUseCase: DeleteWorkUseCase,
+
+    // Work Done
+    getAllWorkDoneListUseCase: GetAllWorkDoneListUseCase,
+
+    ) : ViewModel() {
 
     // Testing values
-
-    private val listaDeWorkDone = mutableListOf(
-        WorkDoneDataClass(
-            workDataClass =
-            WorkDataClass(
-                id = 1,
-                description = "Tubo torneado",
-                unitPrice = 5400,
-            ), quantity =  20),
-
-        WorkDoneDataClass(
-            workDataClass=
-            WorkDataClass(
-                id = 1,
-                description = "Tubo agujereado",
-                unitPrice = 600,
-            ), quantity = 15),
-
-        WorkDoneDataClass(
-            workDataClass = WorkDataClass(
-                id = 1,
-                description = "Cuñas",
-                unitPrice = 800,
-            ), quantity = 300),
-
-        WorkDoneDataClass(
-            workDataClass = WorkDataClass(
-                id = 1,
-                description = "Tubo torneado",
-                unitPrice = 500,
-            ), quantity = 15),
-
-    )
 
     private val paymentList = mutableListOf(
         PaymentReceivedDataClass("Cash", 890000),
@@ -95,7 +68,9 @@ class TallerViewModel @Inject constructor(
     private val _quantityEditedWork = MutableStateFlow("")
     val quantityEditedWork: StateFlow<String> = _quantityEditedWork
 
-    private val _workDoneList = MutableStateFlow<List<WorkDoneDataClass>>(listaDeWorkDone)
+    private val _workDoneList = getAllWorkDoneListUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
     val workDoneList: StateFlow<List<WorkDoneDataClass>> = _workDoneList
 
     private val _paymentReceivedList = MutableStateFlow<List<PaymentReceivedDataClass>>(paymentList)
@@ -165,19 +140,9 @@ class TallerViewModel @Inject constructor(
         _quantityEditedWork.value = value
     }
 
-    fun addWorkDone(work: WorkDoneDataClass) {
-        listaDeWorkDone.add(work)
-        _workDoneList.value = listaDeWorkDone
-    }
-
     fun addPaymentReceived(payment: PaymentReceivedDataClass) {
         paymentList.add(payment)
         _paymentReceivedList.value = paymentList
-    }
-
-    fun deleteWorkDone(work: WorkDoneDataClass) {
-        listaDeWorkDone.remove(work)
-        _workDoneList.value = listaDeWorkDone
     }
 
     fun deletePaymentDone(payment: PaymentReceivedDataClass){
