@@ -390,14 +390,6 @@ fun SelectWorkDropdownMenu(
                 )
             }
         }
-
-//        workList.forEach {
-//            DropdownMenuItem(
-//                text = { Text() },
-//                onClick = { onItemSelectedChange(it) }
-//            )
-//        }
-
     }
 }
 
