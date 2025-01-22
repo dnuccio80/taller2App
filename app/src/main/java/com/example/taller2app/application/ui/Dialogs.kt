@@ -377,12 +377,20 @@ fun SelectWorkDropdownMenu(
         onDismissRequest = { onDismiss() },
         modifier = Modifier.background(ContrastColor)
     ) {
-        workList.value.forEach {
+        if (workList.value.isEmpty()) {
             DropdownMenuItem(
-                text = { Text(it.description) },
-                onClick = { onItemSelectedChange(it.description) }
+                text = { Text(stringResource(R.string.no_works_found)) },
+                onClick = { onDismiss() }
             )
+        } else {
+            workList.value.forEach {
+                DropdownMenuItem(
+                    text = { Text(it.description) },
+                    onClick = { onItemSelectedChange(it.description) }
+                )
+            }
         }
+
 //        workList.forEach {
 //            DropdownMenuItem(
 //                text = { Text() },

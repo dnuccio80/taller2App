@@ -21,12 +21,14 @@ object AppModule {
             app,
             AppDataBase::class.java,
             "app_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideWorkDao(appDataBase: AppDataBase): WorkDao{
+    fun provideWorkDao(appDataBase: AppDataBase): WorkDao {
         return appDataBase.workDao
     }
 
