@@ -7,6 +7,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taller2app.application.domain.payments.AddNewPaymentUseCase
+import com.example.taller2app.application.domain.payments.DeletePaymentUseCase
 import com.example.taller2app.application.domain.payments.GetAllPaymentsUseCase
 import com.example.taller2app.application.domain.payments.UpdatePaymentUseCase
 import com.example.taller2app.application.domain.works.AddNewWorkUseCase
@@ -50,21 +51,18 @@ class TallerViewModel @Inject constructor(
     getAllPaymentsUseCase: GetAllPaymentsUseCase,
     private val addNewPaymentUseCase: AddNewPaymentUseCase,
     private val updatePaymentUseCase: UpdatePaymentUseCase,
-    private val deletePaymentUseCase: UpdatePaymentUseCase,
+    private val deletePaymentUseCase: DeletePaymentUseCase,
 
     ) : ViewModel() {
 
     // Testing values
 
 
-    private val _paymentMethodList = mutableListOf(
-        "Cash",
-        "Checks"
-    )
+    private val _paymentMethodList = AvailablePaymentMethods.paymentMethods
 
     private val paymentList = mutableListOf(
-        PaymentDataClass(description = _paymentMethodList[1], amount = 890000),
-        PaymentDataClass(description = _paymentMethodList[1], amount =  73000)
+        PaymentDataClass(method = _paymentMethodList.first(), amount = 890000),
+        PaymentDataClass(method = _paymentMethodList.last(), amount =  73000)
     )
     // <--------------------- Vals --------------------->
 
@@ -250,6 +248,11 @@ class TallerViewModel @Inject constructor(
 
     fun updatePaymentMethodValue(value: String) {
         _paymentMethodValue.value = value
+    }
+
+    fun clearPaymentDialogData(){
+        updateAmountPaymentValue("")
+        updatePaymentMethodValue("")
     }
 
 

@@ -118,7 +118,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 })
 
             Spacer(Modifier.size(16.dp))
-            PaymentReceivedCardItem(paymentReceivedList)
+            PaymentReceivedCardItem(paymentReceivedList, viewModel)
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
@@ -129,6 +129,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             viewModel.updateShowPaymentDialog(
                 false
             )
+            viewModel.clearPaymentDialogData()
         }
         AddNewWorkDoneDialog(
             show = showAddWorkDialog.value,
@@ -196,7 +197,7 @@ private fun BalanceCardItem() {
 }
 
 @Composable
-private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataClass>>) {
+private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataClass>>, viewModel: TallerViewModel) {
 
     Card(
         Modifier
@@ -231,7 +232,7 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataC
                     }
                 } else {
                     items(paymentReceivedList.value) {
-                        PaymentCardItem(it)
+                        PaymentCardItem(it, viewModel)
                     }
                 }
             }
@@ -240,19 +241,31 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataC
 }
 
 @Composable
-fun PaymentCardItem(payment: PaymentDataClass) {
+fun PaymentCardItem(payment: PaymentDataClass, viewModel: TallerViewModel) {
+
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem(payment.description, Modifier.weight(.5f))
+        BodyTextItem(payment.method, Modifier.weight(.5f))
         Spacer(Modifier.width(8.dp))
         BodyTextItem("$ ${payment.formatNumber(payment.amount)}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
         Icon(
             Icons.Filled.Edit,
             contentDescription = "edit work",
-            tint = Color.White
+            tint = Color.White,
+            modifier = Modifier.clickable {
+                showDialog = true
+            }
+        )
+        EditPaymentDialog(
+            show = showDialog,
+            viewModel,
+            paymentData = payment,
+            onDismiss = { showDialog = false }
         )
     }
 }

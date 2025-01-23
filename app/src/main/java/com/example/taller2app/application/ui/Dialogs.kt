@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.ui.theme.AcceptButtonColor
@@ -63,7 +64,6 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
         Dialog(
             onDismissRequest = {
                 onDismiss()
-                viewModel.updateAmountPaymentValue("")
             }
         ) {
             Card(
@@ -102,7 +102,6 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
                         declineText = stringResource(R.string.decline),
                         onDecline = {
                             onDismiss()
-                            viewModel.updateAmountPaymentValue("")
                         },
                         onAccept = {
                             if (viewModel.hasAllCorrectFields(
@@ -110,23 +109,102 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
                                     listValue = paymentValue
                                 )
                             ) {
+                                viewModel.addNewPayment(
+                                    PaymentDataClass(
+                                        method = paymentValue,
+                                        amount = amountValue.toInt()
+                                    )
+                                )
                                 onDismiss()
-                                viewModel.updateAmountPaymentValue("")
-                                viewModel.updatePaymentMethodValue("")
                             }
                         })
                 }
             }
         }
     }
+}
 
+@Composable
+fun EditPaymentDialog(show: Boolean,viewModel: TallerViewModel, paymentData: PaymentDataClass, onDismiss: () -> Unit) {
+
+    var amountValue by rememberSaveable { mutableStateOf(paymentData.amount.toString()) }
+    var paymentValue by rememberSaveable { mutableStateOf(paymentData.method) }
+
+
+    if (show) {
+        Dialog(
+            onDismissRequest = {
+                onDismiss()
+                amountValue = paymentData.amount.toString()
+                paymentValue = paymentData.method
+            }
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.edit_payment),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    CashAmountTextField(
+                        amountValue,
+                        viewModel
+                    ) { amountValue = it }
+                    Spacer(Modifier.size(16.dp))
+                    PaymentMethodGroup(paymentValue) { paymentValue = it }
+                    Spacer(Modifier.size(16.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.delete),
+                        acceptContainerColor = AcceptButtonColor,
+                        declineContainerColor = DeleteButtonColor,
+                        onDecline = {
+                            viewModel.deletePayment(paymentData)
+                            onDismiss()
+                            amountValue = paymentData.amount.toString()
+                            paymentValue = paymentData.method
+                        },
+                        onAccept = {
+                            if (viewModel.hasAllCorrectFields(
+                                    amount = amountValue,
+                                    listValue = paymentValue
+                                )
+                            ) {
+                                viewModel.updatePayment(
+                                    paymentData.copy(amount = amountValue.toInt(), method = paymentValue)
+                                )
+                                onDismiss()
+                            }
+                        })
+                }
+            }
+        }
+    }
 }
 
 @Composable
 fun PaymentMethodGroup(paymentValue: String, onValueChange: (String) -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        RadioButtonItem(paymentValue, stringResource(R.string.cash)) { onValueChange(it) }
-        RadioButtonItem(paymentValue, stringResource(R.string.checks)) { onValueChange(it) }
+        AvailablePaymentMethods.paymentMethods.forEach {
+            RadioButtonItem(paymentValue, it) { onValueChange(it) }
+        }
     }
 }
 
@@ -185,10 +263,10 @@ fun CashAmountTextField(
 @Composable
 fun EditWorkDoneDialog(
     show: Boolean,
-    quantityText:String,
+    quantityText: String,
     workDoneToEdit: WorkDoneDataClass,
     onDismiss: () -> Unit,
-    onQuantityChange:(String) -> Unit,
+    onQuantityChange: (String) -> Unit,
     onAcceptButtonClicked: () -> Unit,
     onDeleteButtonClick: () -> Unit
 ) {

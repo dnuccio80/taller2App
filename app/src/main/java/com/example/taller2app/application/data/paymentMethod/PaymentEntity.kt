@@ -8,12 +8,12 @@ import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 data class PaymentEntity(
     @PrimaryKey(autoGenerate = true)
     val id:Int = 0,
-    val description: String,
+    val method: String,
     val amount: Int
 )
 
 fun PaymentEntity.toPaymentDataClass() = PaymentDataClass(
     id = id,
-    description = description,
+    method = method,
     amount = amount
 )

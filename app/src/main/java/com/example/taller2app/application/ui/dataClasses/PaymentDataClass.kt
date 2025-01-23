@@ -6,7 +6,7 @@ import java.util.Locale
 
 data class PaymentDataClass(
     val id:Int = 0,
-    val description: String,
+    val method: String,
     val amount: Int
 )
 
@@ -17,7 +17,7 @@ fun PaymentDataClass.formatNumber(value: Int): String {
 
 fun PaymentDataClass.toPaymentDataEntity() = PaymentEntity(
     id = id,
-    description = description,
+    method = method,
     amount = amount
 )
 
