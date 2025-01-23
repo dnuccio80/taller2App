@@ -6,6 +6,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taller2app.application.domain.payments.AddNewPaymentUseCase
+import com.example.taller2app.application.domain.payments.GetAllPaymentsUseCase
+import com.example.taller2app.application.domain.payments.UpdatePaymentUseCase
 import com.example.taller2app.application.domain.works.AddNewWorkUseCase
 import com.example.taller2app.application.domain.works.DeleteWorkUseCase
 import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
@@ -43,6 +46,12 @@ class TallerViewModel @Inject constructor(
     private val updateWorkDoneUseCase: UpdateWorkDoneUseCase,
     private val deleteWorkDoneUseCase: DeleteWorkDoneUseCase,
 
+    // Payments
+    getAllPaymentsUseCase: GetAllPaymentsUseCase,
+    private val addNewPaymentUseCase: AddNewPaymentUseCase,
+    private val updatePaymentUseCase: UpdatePaymentUseCase,
+    private val deletePaymentUseCase: UpdatePaymentUseCase,
+
     ) : ViewModel() {
 
     // Testing values
@@ -78,7 +87,9 @@ class TallerViewModel @Inject constructor(
     )
     val workDoneList: StateFlow<List<WorkDoneDataClass>> = _workDoneList
 
-    private val _paymentReceivedList = MutableStateFlow<List<PaymentDataClass>>(paymentList)
+    private val _paymentReceivedList = getAllPaymentsUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
     val paymentReceivedList: StateFlow<List<PaymentDataClass>> = _paymentReceivedList
 
     // Work List Screen
@@ -164,13 +175,22 @@ class TallerViewModel @Inject constructor(
         }
     }
 
-    fun addPaymentReceived(payment: PaymentDataClass) {
-        paymentList.add(payment)
-        _paymentReceivedList.value = paymentList
+    fun addNewPayment(payment: PaymentDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            addNewPaymentUseCase(payment)
+        }
     }
 
-    fun deletePaymentDone(payment: PaymentDataClass){
-        paymentList.remove(payment)
+    fun updatePayment(payment: PaymentDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            updatePaymentUseCase(payment)
+        }
+    }
+
+    fun deletePayment(payment: PaymentDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            deletePaymentUseCase(payment)
+        }
     }
 
     // Work List Screen

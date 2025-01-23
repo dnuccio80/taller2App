@@ -85,7 +85,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
     )
 
     var selectedWorkDataClass by rememberSaveable(stateSaver = workDataClassSaver) {
-        mutableStateOf<WorkDataClass>(
+        mutableStateOf(
             WorkDataClass(description = "", unitPrice = 0)
         )
     }
@@ -225,8 +225,14 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataC
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(paymentReceivedList.value) {
-                    PaymentCardItem(it)
+                if (paymentReceivedList.value.isEmpty()) {
+                    item() {
+                        Text(stringResource(R.string.no_payments_found))
+                    }
+                } else {
+                    items(paymentReceivedList.value) {
+                        PaymentCardItem(it)
+                    }
                 }
             }
         }

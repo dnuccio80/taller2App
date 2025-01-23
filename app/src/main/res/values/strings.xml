@@ -23,6 +23,7 @@
     <string name="work_description">Work description here</string>
     <string name="add_new_payment">Add new payment</string>
     <string name="no_works_found">No works found</string>
+    <string name="no_payments_found">No payments found</string>
     <string name="edit_work_done">Edit work done</string>
     <string name="quantity">Quantity</string>
 </resources>
