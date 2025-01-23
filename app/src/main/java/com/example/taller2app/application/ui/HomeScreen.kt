@@ -43,7 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
-import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
+import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
@@ -196,7 +196,7 @@ private fun BalanceCardItem() {
 }
 
 @Composable
-private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentReceivedDataClass>>) {
+private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataClass>>) {
 
     Card(
         Modifier
@@ -234,7 +234,7 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentRecei
 }
 
 @Composable
-fun PaymentCardItem(payment: PaymentReceivedDataClass) {
+fun PaymentCardItem(payment: PaymentDataClass) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically

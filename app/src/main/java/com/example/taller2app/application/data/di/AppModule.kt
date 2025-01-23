@@ -3,6 +3,7 @@ package com.example.taller2app.application.data.di
 import android.app.Application
 import androidx.room.Room
 import com.example.taller2app.application.data.AppDataBase
+import com.example.taller2app.application.data.paymentMethod.PaymentDao
 import com.example.taller2app.application.data.workDone.WorkDoneDao
 import com.example.taller2app.application.data.workList.WorkDao
 import dagger.Module
@@ -37,6 +38,12 @@ object AppModule {
     @Singleton
     fun provideWorkDoneDao(appDataBase: AppDataBase): WorkDoneDao {
         return appDataBase.workDoneDao
+    }
+
+    @Provides
+    @Singleton
+    fun providePaymentDao(appDataBase: AppDataBase): PaymentDao {
+        return appDataBase.paymentDao
     }
 
 }

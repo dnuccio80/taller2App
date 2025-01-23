@@ -1,6 +1,5 @@
 package com.example.taller2app.application.ui
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,7 +57,7 @@ import com.example.taller2app.ui.theme.TextColor
 fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
 
     val amountValue by viewModel.amountPaymentValue.collectAsState()
-    val paymentValue by viewModel.paymentMethod.collectAsState()
+    val paymentValue by viewModel.paymentMethodValue.collectAsState()
 
     if (show) {
         Dialog(
@@ -96,7 +95,7 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
                         viewModel
                     ) { viewModel.updateAmountPaymentValue(it) }
                     Spacer(Modifier.size(16.dp))
-                    PaymentMethodGroup(paymentValue) { viewModel.updatePaymentMethod(it) }
+                    PaymentMethodGroup(paymentValue) { viewModel.updatePaymentMethodValue(it) }
                     Spacer(Modifier.size(16.dp))
                     AcceptDeclineButtons(
                         acceptText = stringResource(R.string.accept),
@@ -113,7 +112,7 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
                             ) {
                                 onDismiss()
                                 viewModel.updateAmountPaymentValue("")
-                                viewModel.updatePaymentMethod("")
+                                viewModel.updatePaymentMethodValue("")
                             }
                         })
                 }

@@ -3,10 +3,6 @@ package com.example.taller2app.application.ui
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +14,7 @@ import com.example.taller2app.application.domain.worksDone.AddNewWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.DeleteWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.GetAllWorkDoneListUseCase
 import com.example.taller2app.application.domain.worksDone.UpdateWorkDoneUseCase
-import com.example.taller2app.application.ui.dataClasses.PaymentReceivedDataClass
+import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,12 +24,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.lang.Thread.State
-import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,11 +47,16 @@ class TallerViewModel @Inject constructor(
 
     // Testing values
 
-    private val paymentList = mutableListOf(
-        PaymentReceivedDataClass("Cash", 890000),
-        PaymentReceivedDataClass("Checks", 73000)
+
+    private val _paymentMethodList = mutableListOf(
+        "Cash",
+        "Checks"
     )
 
+    private val paymentList = mutableListOf(
+        PaymentDataClass(description = _paymentMethodList[1], amount = 890000),
+        PaymentDataClass(description = _paymentMethodList[1], amount =  73000)
+    )
     // <--------------------- Vals --------------------->
 
     // Home Screen
@@ -80,8 +78,8 @@ class TallerViewModel @Inject constructor(
     )
     val workDoneList: StateFlow<List<WorkDoneDataClass>> = _workDoneList
 
-    private val _paymentReceivedList = MutableStateFlow<List<PaymentReceivedDataClass>>(paymentList)
-    val paymentReceivedList: StateFlow<List<PaymentReceivedDataClass>> = _paymentReceivedList
+    private val _paymentReceivedList = MutableStateFlow<List<PaymentDataClass>>(paymentList)
+    val paymentReceivedList: StateFlow<List<PaymentDataClass>> = _paymentReceivedList
 
     // Work List Screen
 
@@ -115,8 +113,8 @@ class TallerViewModel @Inject constructor(
     private val _amountPaymentValue = MutableStateFlow("")
     val amountPaymentValue: StateFlow<String> = _amountPaymentValue
 
-    private val _paymentMethod = MutableStateFlow("")
-    val paymentMethod: StateFlow<String> = _paymentMethod
+    private val _paymentMethodValue = MutableStateFlow("")
+    val paymentMethodValue: StateFlow<String> = _paymentMethodValue
 
     // << Edit Work Done >>
 
@@ -166,12 +164,12 @@ class TallerViewModel @Inject constructor(
         }
     }
 
-    fun addPaymentReceived(payment: PaymentReceivedDataClass) {
+    fun addPaymentReceived(payment: PaymentDataClass) {
         paymentList.add(payment)
         _paymentReceivedList.value = paymentList
     }
 
-    fun deletePaymentDone(payment: PaymentReceivedDataClass){
+    fun deletePaymentDone(payment: PaymentDataClass){
         paymentList.remove(payment)
     }
 
@@ -230,8 +228,8 @@ class TallerViewModel @Inject constructor(
         _amountPaymentValue.value = value
     }
 
-    fun updatePaymentMethod(value: String) {
-        _paymentMethod.value = value
+    fun updatePaymentMethodValue(value: String) {
+        _paymentMethodValue.value = value
     }
 
 
