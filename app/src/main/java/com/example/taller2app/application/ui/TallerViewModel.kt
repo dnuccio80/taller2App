@@ -154,6 +154,18 @@ class TallerViewModel @Inject constructor(
         }
     }
 
+    fun updateWorkDone(work: WorkDoneDataClass){
+        viewModelScope.launch (Dispatchers.IO){
+            updateWorkDoneUseCase(work)
+        }
+    }
+
+    fun deleteWorkDone(work: WorkDoneDataClass){
+        viewModelScope.launch (Dispatchers.IO){
+            deleteWorkDoneUseCase(work)
+        }
+    }
+
     fun addPaymentReceived(payment: PaymentReceivedDataClass) {
         paymentList.add(payment)
         _paymentReceivedList.value = paymentList

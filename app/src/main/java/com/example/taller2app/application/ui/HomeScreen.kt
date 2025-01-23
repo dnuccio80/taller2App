@@ -56,7 +56,6 @@ import com.example.taller2app.ui.theme.TextColor
 fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val showPaymentDialog = viewModel.showPaymentDialog.collectAsState()
-    val showEditWorkDialog = viewModel.showEditWorkDialog.collectAsState()
     val showAddWorkDialog = viewModel.showAddNewWorkDoneDialog.collectAsState()
     val quantityEditedWork = viewModel.quantityEditedWork.collectAsState()
     val workSelectedValue = viewModel.workSelectedValue.collectAsState()
@@ -85,7 +84,11 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
         }
     )
 
-    var selectedWorkDataClass by rememberSaveable(stateSaver = workDataClassSaver) {  mutableStateOf<WorkDataClass>(WorkDataClass(description = "", unitPrice = 0)) }
+    var selectedWorkDataClass by rememberSaveable(stateSaver = workDataClassSaver) {
+        mutableStateOf<WorkDataClass>(
+            WorkDataClass(description = "", unitPrice = 0)
+        )
+    }
 
     Box(
         Modifier
@@ -106,18 +109,14 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             Spacer(Modifier.size(16.dp))
             BalanceCardItem()
             Spacer(Modifier.size(16.dp))
-            WorkDoneCardItem(workDoneList) {
-                // AQUI TENMOS QUE MANDAR EL VALOR DE workDoneDataClass a el viewModel?? o al dialog??
-                // VALORES QUE PASAMOS:
-                // workSelectedValue.value
-                // quantityEditedWork.value
-                /*
-                    Tener en cuenta que lo que pasamos con esos valores, no son en si el workDoneDataClass,
-                    por lo que no vamos a poder editar el valor en la lista de workDoneEntity porque no tiene
-                    el id
-                */
-                viewModel.updateShowEditWorkDialog(true)
-            }
+            WorkDoneCardItem(workDoneList,
+                onWorkDoneDataModified = {
+                    viewModel.updateWorkDone(it)
+                },
+                onDeletedButtonClicked = {
+                    viewModel.deleteWorkDone(it)
+                })
+
             Spacer(Modifier.size(16.dp))
             PaymentReceivedCardItem(paymentReceivedList)
         }
@@ -131,27 +130,6 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 false
             )
         }
-        EditWorkDoneDialog(
-            showEditWorkDialog.value,
-            viewModel = viewModel,
-            workSelected = workSelectedValue.value,
-            acceptText = stringResource(R.string.modify),
-            declineText = stringResource(R.string.delete),
-            titleText = stringResource(R.string.edit_work_done),
-            onDismiss = { viewModel.updateShowEditWorkDialog(false) },
-            workQuantity = quantityEditedWork.value,
-            onQuantityChange = { viewModel.updateQuantityEditedWork(it) },
-            onAcceptButtonClicked = {
-                if (viewModel.hasAllCorrectFields(
-                        quantityEditedWork.value,
-                        workSelectedValue.value
-                    )
-                ) {
-                    viewModel.updateShowEditWorkDialog(false)
-                    viewModel.clearAddNewWorkDataDialog()
-                }
-            }
-        )
         AddNewWorkDoneDialog(
             show = showAddWorkDialog.value,
             viewModel = viewModel,
@@ -170,7 +148,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 ) {
                     viewModel.addNewWorkDone(
                         WorkDoneDataClass(
-                            workDataClass = selectedWorkDataClass!!,
+                            workDataClass = selectedWorkDataClass,
                             quantity = quantityEditedWork.value.toInt()
                         )
                     )
@@ -276,7 +254,8 @@ fun PaymentCardItem(payment: PaymentReceivedDataClass) {
 @Composable
 private fun WorkDoneCardItem(
     workDoneList: State<List<WorkDoneDataClass>>,
-    onEditWorkButtonClicked: (WorkDoneDataClass) -> Unit
+    onWorkDoneDataModified: (WorkDoneDataClass) -> Unit,
+    onDeletedButtonClicked: (WorkDoneDataClass) -> Unit
 ) {
 
     Card(
@@ -311,8 +290,14 @@ private fun WorkDoneCardItem(
                         Text(stringResource(R.string.no_works_found))
                     }
                 } else {
-                    items(workDoneList.value) {
-                        WorkItem(it) { onEditWorkButtonClicked(it) }
+                    items(workDoneList.value) { workDoneDataClass ->
+                        WorkDoneItem(workDoneDataClass,
+                            onAcceptModifyButtonClicked = { workDoneDataModified ->
+                                onWorkDoneDataModified(workDoneDataModified)
+                            },
+                            onDeletedButtonClicked = {
+                                onDeletedButtonClicked(workDoneDataClass)
+                            })
                     }
                 }
             }
@@ -322,7 +307,15 @@ private fun WorkDoneCardItem(
 }
 
 @Composable
-fun WorkItem(workDoneDataClass: WorkDoneDataClass, onEditWorkButtonClicked: (WorkDoneDataClass) -> Unit) {
+fun WorkDoneItem(
+    workDoneDataClass: WorkDoneDataClass,
+    onAcceptModifyButtonClicked: (WorkDoneDataClass) -> Unit,
+    onDeletedButtonClicked: () -> Unit
+) {
+
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var quantityText by rememberSaveable { mutableStateOf(workDoneDataClass.quantity.toString()) }
+
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -330,14 +323,42 @@ fun WorkItem(workDoneDataClass: WorkDoneDataClass, onEditWorkButtonClicked: (Wor
         BodyTextItem(workDoneDataClass.workDataClass.description, Modifier.weight(1f))
         BodyTextItem("x ${workDoneDataClass.quantity}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
-        BodyTextItem("$ ${workDoneDataClass.formatNumber(workDoneDataClass.totalPrice)}", Modifier.weight(.5f))
+        BodyTextItem(
+            "$ ${workDoneDataClass.formatNumber(workDoneDataClass.totalPrice)}",
+            Modifier.weight(.5f)
+        )
         Spacer(Modifier.width(16.dp))
         Icon(
             Icons.Filled.Edit,
             contentDescription = "edit work",
             tint = Color.White,
             modifier = Modifier.clickable {
-                onEditWorkButtonClicked(workDoneDataClass)
+                showDialog = true
+            }
+        )
+        EditWorkDoneDialog(
+            showDialog,
+            quantityText,
+            workDoneToEdit = workDoneDataClass,
+            onDismiss = {
+                showDialog = false
+                quantityText = workDoneDataClass.quantity.toString()
+            },
+            onQuantityChange = { quantityText = it },
+            onAcceptButtonClicked = {
+                if (quantityText.isNotEmpty()) {
+                    onAcceptModifyButtonClicked(
+                        workDoneDataClass.copy(
+                            quantity = quantityText.toInt(),
+                            totalPrice = workDoneDataClass.workDataClass.unitPrice * quantityText.toInt()
+                        )
+                    )
+                    showDialog = false
+                }
+            },
+            onDeleteButtonClick = {
+                onDeletedButtonClicked()
+                showDialog = false
             }
         )
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import com.example.taller2app.R
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
+import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.ui.theme.AcceptButtonColor
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
@@ -184,20 +186,20 @@ fun CashAmountTextField(
 @Composable
 fun EditWorkDoneDialog(
     show: Boolean,
-    viewModel: TallerViewModel,
-    acceptText: String,
-    declineText: String,
-    workSelected: String,
-    titleText: String,
-    workQuantity: String,
+    quantityText:String,
+    workDoneToEdit: WorkDoneDataClass,
     onDismiss: () -> Unit,
-    onQuantityChange: (String) -> Unit,
-    onAcceptButtonClicked: () -> Unit
+    onQuantityChange:(String) -> Unit,
+    onAcceptButtonClicked: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
+
 
     if (show) {
         Dialog(
-            onDismissRequest = { onDismiss() }
+            onDismissRequest = {
+                onDismiss()
+            }
         ) {
             Card(
                 Modifier
@@ -216,33 +218,48 @@ fun EditWorkDoneDialog(
                         .padding(16.dp)
                 ) {
                     Text(
-                        titleText,
+                        stringResource(R.string.edit_work_done),
                         style = MaterialTheme.typography.titleLarge,
                         fontSize = 22.sp
                     )
                     Spacer(Modifier.size(8.dp))
                     HorizontalDividerCard()
                     Spacer(Modifier.size(16.dp))
-                    SelectWorkTextField(viewModel, workSelected, canChangeWorkValue = false) { }
+                    EditedWorkName(workDoneToEdit.workDataClass.description)
                     Spacer(Modifier.size(16.dp))
                     WorkQuantityTextFieldItem(
-                        workQuantity,
+                        quantityText,
                         onValueChange = { onQuantityChange(it) }
                     )
                     Spacer(Modifier.size(32.dp))
                     AcceptDeclineButtons(
-                        acceptText = acceptText,
-                        declineText = declineText,
+                        acceptText = stringResource(R.string.modify),
+                        declineText = stringResource(R.string.delete),
                         acceptContainerColor = AcceptButtonColor,
                         declineContainerColor = DeleteButtonColor,
                         onAccept = { onAcceptButtonClicked() },
-                        onDecline = { onDismiss() }
+                        onDecline = { onDeleteButtonClick() }
                     )
                 }
             }
         }
     }
 
+}
+
+@Composable
+fun EditedWorkName(workDescriptionName: String) {
+    TextField(
+        value = workDescriptionName,
+        onValueChange = {},
+        placeholder = { Text(text = stringResource(R.string.search_work)) },
+        enabled = false,
+        colors = TextFieldDefaults.colors(
+            disabledContainerColor = CardBackground,
+            disabledTextColor = Color.Magenta,
+            disabledIndicatorColor = ButtonColor
+        )
+    )
 }
 
 @Composable
@@ -287,7 +304,6 @@ fun AddNewWorkDoneDialog(
                     SelectWorkTextField(
                         viewModel,
                         workSelected,
-                        canChangeWorkValue = true
                     ) { onWorkChange(it) }
                     Spacer(Modifier.size(16.dp))
                     WorkQuantityTextFieldItem(
@@ -337,7 +353,6 @@ fun WorkQuantityTextFieldItem(workQuantity: String, onValueChange: (String) -> U
 fun SelectWorkTextField(
     viewModel: TallerViewModel,
     workSelectedValue: String,
-    canChangeWorkValue: Boolean,
     onWorkChange: (WorkDataClass) -> Unit
 ) {
 
@@ -352,20 +367,18 @@ fun SelectWorkTextField(
             enabled = false,
             colors = TextFieldDefaults.colors(
                 disabledContainerColor = CardBackground,
-                disabledTextColor = if (canChangeWorkValue) TextColor else ContrastColor,
+                disabledTextColor = TextColor,
                 disabledIndicatorColor = ButtonColor
             ),
             modifier = Modifier.clickable {
-                if (canChangeWorkValue) viewModel.updateShowWorkDoneDropdownMenu(true)
+                viewModel.updateShowWorkDoneDropdownMenu(true)
             },
             trailingIcon = {
-                if (canChangeWorkValue) {
-                    Icon(
-                        Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "down arrow button",
-                        tint = Color.White
-                    )
-                }
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    contentDescription = "down arrow button",
+                    tint = Color.White
+                )
             }
         )
         SelectWorkDropdownMenu(
@@ -455,6 +468,10 @@ fun AddNewWorkDialog(
                         value = addNewWorkDescription,
                         onValueChange = { onWorkDescriptionChange(it) },
                         placeholder = { Text(stringResource(R.string.work_description)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = CardBackground,
                             unfocusedContainerColor = CardBackground,
@@ -510,7 +527,11 @@ fun ModifyWorkInListDialog(
 
     if (show) {
         Dialog(
-            onDismissRequest = { onDismiss() }
+            onDismissRequest = {
+                onDismiss()
+                descriptionText = workDataClass.description
+                unitPriceText = workDataClass.unitPrice.toString()
+            }
         ) {
             Card(
                 Modifier
@@ -540,6 +561,9 @@ fun ModifyWorkInListDialog(
                         value = descriptionText,
                         onValueChange = { descriptionText = it },
                         placeholder = { Text(stringResource(R.string.work_description)) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = CardBackground,
                             unfocusedContainerColor = CardBackground,

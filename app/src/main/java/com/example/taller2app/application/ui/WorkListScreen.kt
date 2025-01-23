@@ -203,6 +203,7 @@ fun WorkCardItem(
                 modifier = Modifier.clickable {
                     showDialog = true
                 })
+
             ModifyWorkInListDialog(
                 showDialog,
                 workDataClass,
