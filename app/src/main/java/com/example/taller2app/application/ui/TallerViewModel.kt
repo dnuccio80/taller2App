@@ -26,11 +26,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,24 +60,13 @@ class TallerViewModel @Inject constructor(
 
     ) : ViewModel() {
 
-    // Testing values
 
-
-    private val _paymentMethodList = AvailablePaymentMethods.paymentMethods
-
-    private val paymentList = mutableListOf(
-        PaymentDataClass(method = _paymentMethodList.first(), amount = 890000),
-        PaymentDataClass(method = _paymentMethodList.last(), amount =  73000)
-    )
     // <--------------------- Vals --------------------->
 
     // Home Screen
 
     private val _showPaymentDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showPaymentDialog: StateFlow<Boolean> = _showPaymentDialog
-
-    private val _showEditWorkDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val showEditWorkDialog: StateFlow<Boolean> = _showEditWorkDialog
 
     private val _showAddNewWorkDoneDialog = MutableStateFlow(false)
     val showAddNewWorkDoneDialog: StateFlow<Boolean> = _showAddNewWorkDoneDialog
@@ -89,6 +83,22 @@ class TallerViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
     )
     val paymentReceivedList: StateFlow<List<PaymentDataClass>> = _paymentReceivedList
+
+    val totalPaymentReceivedByCategory = _paymentReceivedList.map { list ->
+        list.groupBy { it.method }
+            .mapValues { (_, payments) ->
+                payments.sumOf { it.amount }
+            }
+    }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap()
+    )
+
+    val totalAmountInWorkDone = _workDoneList.map { list ->
+        list.sumOf { it.totalPrice }
+    }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), 0
+    )
+
 
     // Work List Screen
 
@@ -142,10 +152,6 @@ class TallerViewModel @Inject constructor(
         _showPaymentDialog.value = value
     }
 
-    fun updateShowEditWorkDialog(value: Boolean) {
-        _showEditWorkDialog.value = value
-    }
-
     fun updateShowAddWorkDialog(value: Boolean) {
         _showAddNewWorkDoneDialog.value = value
     }
@@ -154,38 +160,38 @@ class TallerViewModel @Inject constructor(
         _quantityEditedWork.value = value
     }
 
-    fun addNewWorkDone(work: WorkDoneDataClass){
+    fun addNewWorkDone(work: WorkDoneDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.i("Damian", "new work done added: $work")
             addNewWorkDoneUseCase(work)
         }
     }
 
-    fun updateWorkDone(work: WorkDoneDataClass){
-        viewModelScope.launch (Dispatchers.IO){
+    fun updateWorkDone(work: WorkDoneDataClass) {
+        viewModelScope.launch(Dispatchers.IO) {
             updateWorkDoneUseCase(work)
         }
     }
 
-    fun deleteWorkDone(work: WorkDoneDataClass){
-        viewModelScope.launch (Dispatchers.IO){
+    fun deleteWorkDone(work: WorkDoneDataClass) {
+        viewModelScope.launch(Dispatchers.IO) {
             deleteWorkDoneUseCase(work)
         }
     }
 
-    fun addNewPayment(payment: PaymentDataClass){
+    fun addNewPayment(payment: PaymentDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             addNewPaymentUseCase(payment)
         }
     }
 
-    fun updatePayment(payment: PaymentDataClass){
+    fun updatePayment(payment: PaymentDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             updatePaymentUseCase(payment)
         }
     }
 
-    fun deletePayment(payment: PaymentDataClass){
+    fun deletePayment(payment: PaymentDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             deletePaymentUseCase(payment)
         }
@@ -205,29 +211,29 @@ class TallerViewModel @Inject constructor(
         _addNewWorkDescription.value = value
     }
 
-    fun updateUnitPriceNewWorkText(value:String){
+    fun updateUnitPriceNewWorkText(value: String) {
         _unitPriceNewWorkText.value = value
     }
 
-    fun addNewWork(description:String,unitPrice:Int){
+    fun addNewWork(description: String, unitPrice: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            addNewWorkUseCase(description,unitPrice)
+            addNewWorkUseCase(description, unitPrice)
         }
     }
 
-    fun updateWorkInWorkList(workDataClass: WorkDataClass){
+    fun updateWorkInWorkList(workDataClass: WorkDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             updateWorkUseCase(workDataClass)
         }
     }
 
-    fun deleteWorkInWorkList(workDataClass: WorkDataClass){
+    fun deleteWorkInWorkList(workDataClass: WorkDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             deleteWorkUseCase(workDataClass)
         }
     }
 
-    fun clearAddWorkListDialogData(){
+    fun clearAddWorkListDialogData() {
         _addNewWorkDescription.value = ""
         _unitPriceNewWorkText.value = ""
     }
@@ -250,7 +256,7 @@ class TallerViewModel @Inject constructor(
         _paymentMethodValue.value = value
     }
 
-    fun clearPaymentDialogData(){
+    fun clearPaymentDialogData() {
         updateAmountPaymentValue("")
         updatePaymentMethodValue("")
     }
@@ -266,7 +272,7 @@ class TallerViewModel @Inject constructor(
         _workSelectedValue.value = value
     }
 
-    fun clearAddNewWorkDataDialog(){
+    fun clearAddNewWorkDataDialog() {
         updateWorkSelectedValue("")
         updateQuantityEditedWork("")
     }
@@ -281,6 +287,12 @@ class TallerViewModel @Inject constructor(
     fun hasAllCorrectFields(amount: String, listValue: String): Boolean {
         return amount.isNotEmpty() && listValue.isNotEmpty()
     }
+
+    fun formatPrice(value: Int): String {
+        val formatter = NumberFormat.getInstance(Locale("es", "AR"))
+        return formatter.format(value)
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getLocalDate(dateModified: Long): String {

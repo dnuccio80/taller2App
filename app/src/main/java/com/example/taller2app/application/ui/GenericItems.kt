@@ -79,8 +79,8 @@ fun ButtonItem(
 }
 
 @Composable
-fun TitleItem(text: String) {
-    Text(text, style = MaterialTheme.typography.titleLarge)
+fun TitleItem(text: String, color: Color = TextColor) {
+    Text(text, style = MaterialTheme.typography.titleLarge, color = color)
 }
 
 @Composable

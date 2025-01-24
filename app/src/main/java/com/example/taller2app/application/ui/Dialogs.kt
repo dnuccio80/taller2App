@@ -202,9 +202,14 @@ fun EditPaymentDialog(show: Boolean,viewModel: TallerViewModel, paymentData: Pay
 @Composable
 fun PaymentMethodGroup(paymentValue: String, onValueChange: (String) -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        AvailablePaymentMethods.paymentMethods.forEach {
-            RadioButtonItem(paymentValue, it) { onValueChange(it) }
-        }
+        RadioButtonItem(
+            selectedValue = paymentValue,
+            description = AvailablePaymentMethods.Cash.paymentMethod
+        ) { onValueChange(it) }
+        RadioButtonItem(
+            selectedValue = paymentValue,
+            description = AvailablePaymentMethods.Check.paymentMethod
+        ) { onValueChange(it) }
     }
 }
 

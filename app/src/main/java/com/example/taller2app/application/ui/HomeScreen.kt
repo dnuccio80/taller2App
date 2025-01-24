@@ -50,6 +50,8 @@ import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
+import com.example.taller2app.ui.theme.NegativeBalanceColor
+import com.example.taller2app.ui.theme.PositiveBalanceColor
 import com.example.taller2app.ui.theme.TextColor
 
 @Composable
@@ -62,6 +64,9 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val workDoneList = viewModel.workDoneList.collectAsState()
     val paymentReceivedList = viewModel.paymentReceivedList.collectAsState()
+
+    val totalPaymentReceivedByCategory by viewModel.totalPaymentReceivedByCategory.collectAsState()
+    val totalAmountInWorkDone by viewModel.totalAmountInWorkDone.collectAsState()
 
 
     // Saver for SelectedWorkDataClass
@@ -107,7 +112,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
         ) {
             TitleItem("home")
             Spacer(Modifier.size(16.dp))
-            BalanceCardItem()
+            BalanceCardItem(totalPaymentReceivedByCategory, totalAmountInWorkDone, viewModel)
             Spacer(Modifier.size(16.dp))
             WorkDoneCardItem(workDoneList,
                 onWorkDoneDataModified = {
@@ -163,7 +168,18 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 }
 
 @Composable
-private fun BalanceCardItem() {
+private fun BalanceCardItem(
+    totalPaymentReceived: Map<String, Int>,
+    totalAmountInWorkDone: Int,
+    viewModel: TallerViewModel
+) {
+
+    val cashAmount = totalPaymentReceived[AvailablePaymentMethods.Cash.paymentMethod]?:0
+    val checkAmount = totalPaymentReceived[AvailablePaymentMethods.Check.paymentMethod]?:0
+
+    val balance =  totalAmountInWorkDone - cashAmount - checkAmount
+    val positiveBalance = balance >= 0
+
     Card(
         Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -181,17 +197,17 @@ private fun BalanceCardItem() {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TitleItem(text = stringResource(R.string.balance))
+            TitleItem(text = stringResource(R.string.balance), if(positiveBalance) PositiveBalanceColor else NegativeBalanceColor)
             Spacer(Modifier.size(8.dp))
-            TitleItem("$50.000")
+            TitleItem("$ ${viewModel.formatPrice(balance)}", if(positiveBalance) PositiveBalanceColor else NegativeBalanceColor)
             Spacer(Modifier.size(16.dp))
             HorizontalDividerCard()
             Spacer(Modifier.size(16.dp))
-            BodyTextItem("${stringResource(R.string.work_done)}: $150.000")
+            BodyTextItem("${stringResource(R.string.work_done)}: $ $totalAmountInWorkDone")
             Spacer(Modifier.size(8.dp))
-            BodyTextItem("${stringResource(R.string.cash_received)}: $150.000")
+            BodyTextItem("${stringResource(R.string.cash_received)}: $ ${viewModel.formatPrice(cashAmount)}")
             Spacer(Modifier.size(8.dp))
-            BodyTextItem("${stringResource(R.string.checks_received)}: $150.000")
+            BodyTextItem("${stringResource(R.string.checks_received)}: $ ${viewModel.formatPrice(checkAmount)}")
         }
     }
 }
