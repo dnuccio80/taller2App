@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -58,7 +59,7 @@ import com.example.taller2app.ui.theme.CardBackground
 @Composable
 fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
-    val searchWorkText = viewModel.searchQuery.collectAsState()
+    val searchQueryText = viewModel.searchQuery.collectAsState()
     val workList = viewModel.workList.collectAsState()
     val showAddNewWorkDialog = viewModel.showAddNewWorkDialog.collectAsState()
 
@@ -81,7 +82,7 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 )
         ) {
 
-            SearchWorkTextField(searchWorkText.value) { viewModel.updateSearchQuery(it) }
+            SearchWorkTextField(searchQueryText.value) { viewModel.updateSearchQuery(it) }
             Spacer(Modifier.size(16.dp))
             LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (workList.value.isEmpty()) {
@@ -150,9 +151,18 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
         singleLine = true,
         trailingIcon = {
             Icon(
-                Icons.Filled.Search,
+                if(textValue.isEmpty()){
+                    Icons.Filled.Search
+                }else{
+                    Icons.Filled.Close
+                },
                 contentDescription = "Search work button",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.clickable {
+                    if(textValue.isNotEmpty()){
+                        onValueChange("")
+                    }
+                }
             )
         },
         keyboardOptions = KeyboardOptions(
