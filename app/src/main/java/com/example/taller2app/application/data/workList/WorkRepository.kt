@@ -14,6 +14,12 @@ class WorkRepository @Inject constructor(private val workDao: WorkDao) {
         }
     }
 
+    fun getWorkByQuery(query:String): Flow<List<WorkDataClass>> = workDao.getWorkByDescription(query).map {
+        it.map { entity ->
+            entity.toWorkDataClass()
+        }
+    }
+
     suspend fun addNewWork(workDataClass: WorkDataClass) {
         workDao.addNewWork(workDataClass.toWorkEntity())
     }

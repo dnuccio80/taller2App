@@ -3,6 +3,7 @@ package com.example.taller2app.application.ui
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collectAsState
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,9 +29,13 @@ import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -111,13 +116,17 @@ class TallerViewModel @Inject constructor(
 
     // Work List Screen
 
-    private val _workList = getAllWorkListUseCase().stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
-    )
-    val workList = _workList
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
 
-    private val _searchWorkText = MutableStateFlow("")
-    val searchWorkText: StateFlow<String> = _searchWorkText
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    private val _workList = _searchQuery
+    .debounce(300)
+    .flatMapLatest {query ->
+        getAllWorkListUseCase(query)
+    }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val workList = _workList
 
     private val _addNewWorkDescription = MutableStateFlow("")
     val addNewWorkDescription: StateFlow<String> = _addNewWorkDescription
@@ -215,12 +224,12 @@ class TallerViewModel @Inject constructor(
 
     // Work List Screen
 
-    fun updateShowAddNewWorkDialog(value: Boolean) {
-        _showAddNewWorkDialog.value = value
+    fun updateSearchQuery(value: String) {
+        _searchQuery.value = value
     }
 
-    fun updateSearchWorkText(value: String) {
-        _searchWorkText.value = value
+    fun updateShowAddNewWorkDialog(value: Boolean) {
+        _showAddNewWorkDialog.value = value
     }
 
     fun updateAddNewWorkDescription(value: String) {

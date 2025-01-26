@@ -58,7 +58,7 @@ import com.example.taller2app.ui.theme.CardBackground
 @Composable
 fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
-    val searchWorkText = viewModel.searchWorkText.collectAsState()
+    val searchWorkText = viewModel.searchQuery.collectAsState()
     val workList = viewModel.workList.collectAsState()
     val showAddNewWorkDialog = viewModel.showAddNewWorkDialog.collectAsState()
 
@@ -81,7 +81,7 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 )
         ) {
 
-            SearchWorkTextField(searchWorkText.value) { viewModel.updateSearchWorkText(it) }
+            SearchWorkTextField(searchWorkText.value) { viewModel.updateSearchQuery(it) }
             Spacer(Modifier.size(16.dp))
             LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (workList.value.isEmpty()) {

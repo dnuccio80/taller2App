@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -56,6 +60,7 @@ import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.DeleteButtonColor
 import com.example.taller2app.ui.theme.TextColor
+import kotlin.math.max
 
 @Composable
 fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
@@ -498,7 +503,7 @@ fun SelectWorkDropdownMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { onDismiss() },
-        modifier = Modifier.background(ContrastColor)
+        modifier = Modifier.background(ContrastColor).heightIn(max = 200.dp)
     ) {
         if (workList.value.isEmpty()) {
             DropdownMenuItem(
