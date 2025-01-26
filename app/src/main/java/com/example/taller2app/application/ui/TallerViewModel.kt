@@ -6,6 +6,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taller2app.application.domain.annotations.AddAnnotationUseCase
+import com.example.taller2app.application.domain.annotations.DeleteAnnotationUseCase
+import com.example.taller2app.application.domain.annotations.GetAllAnnotationsUseCase
+import com.example.taller2app.application.domain.annotations.UpdateAnnotationUseCase
 import com.example.taller2app.application.domain.payments.AddNewPaymentUseCase
 import com.example.taller2app.application.domain.payments.DeletePaymentUseCase
 import com.example.taller2app.application.domain.payments.GetAllPaymentsUseCase
@@ -18,6 +22,7 @@ import com.example.taller2app.application.domain.worksDone.AddNewWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.DeleteWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.GetAllWorkDoneListUseCase
 import com.example.taller2app.application.domain.worksDone.UpdateWorkDoneUseCase
+import com.example.taller2app.application.ui.dataClasses.AnnotationsDataClass
 import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
@@ -26,8 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -57,6 +60,12 @@ class TallerViewModel @Inject constructor(
     private val addNewPaymentUseCase: AddNewPaymentUseCase,
     private val updatePaymentUseCase: UpdatePaymentUseCase,
     private val deletePaymentUseCase: DeletePaymentUseCase,
+
+    // Annotations
+    getAllAnnotationsUseCase: GetAllAnnotationsUseCase,
+    private val addAnnotationUseCase: AddAnnotationUseCase,
+    private val updateAnnotationUseCase: UpdateAnnotationUseCase,
+    private val deleteAnnotationUseCase: DeleteAnnotationUseCase,
 
     ) : ViewModel() {
 
@@ -118,6 +127,13 @@ class TallerViewModel @Inject constructor(
 
     private val _showAddNewWorkDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showAddNewWorkDialog: StateFlow<Boolean> = _showAddNewWorkDialog
+
+    // Annotations Screen
+
+    private val _annotationsList = getAllAnnotationsUseCase().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+    )
+    val annotationsList = _annotationsList
 
 
     // BottomBar
@@ -236,6 +252,26 @@ class TallerViewModel @Inject constructor(
     fun clearAddWorkListDialogData() {
         _addNewWorkDescription.value = ""
         _unitPriceNewWorkText.value = ""
+    }
+
+    // Annotations Screen
+
+    fun addAnnotation(annotation:AnnotationsDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            addAnnotationUseCase(annotation)
+        }
+    }
+
+    fun updateAnnotation(annotation: AnnotationsDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            updateAnnotationUseCase(annotation)
+        }
+    }
+
+    fun deleteAnnotation(annotation: AnnotationsDataClass){
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteAnnotationUseCase(annotation)
+        }
     }
 
     // Bottom Bar

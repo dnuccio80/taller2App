@@ -1,4 +1,4 @@
-package com.example.taller2app.application.ui
+package com.example.taller2app.application.ui.sealedClasses
 
 sealed class AvailablePaymentMethods(
     val paymentMethod: String

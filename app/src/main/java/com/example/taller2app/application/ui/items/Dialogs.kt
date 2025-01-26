@@ -1,4 +1,4 @@
-package com.example.taller2app.application.ui
+package com.example.taller2app.application.ui.items
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -47,6 +47,9 @@ import com.example.taller2app.R
 import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
+import com.example.taller2app.application.ui.TallerViewModel
+import com.example.taller2app.application.ui.dataClasses.AnnotationsDataClass
+import com.example.taller2app.application.ui.sealedClasses.AvailablePaymentMethods
 import com.example.taller2app.ui.theme.AcceptButtonColor
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
@@ -125,7 +128,12 @@ fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () ->
 }
 
 @Composable
-fun EditPaymentDialog(show: Boolean,viewModel: TallerViewModel, paymentData: PaymentDataClass, onDismiss: () -> Unit) {
+fun EditPaymentDialog(
+    show: Boolean,
+    viewModel: TallerViewModel,
+    paymentData: PaymentDataClass,
+    onDismiss: () -> Unit
+) {
 
     var amountValue by rememberSaveable { mutableStateOf(paymentData.amount.toString()) }
     var paymentValue by rememberSaveable { mutableStateOf(paymentData.method) }
@@ -188,7 +196,10 @@ fun EditPaymentDialog(show: Boolean,viewModel: TallerViewModel, paymentData: Pay
                                 )
                             ) {
                                 viewModel.updatePayment(
-                                    paymentData.copy(amount = amountValue.toInt(), method = paymentValue)
+                                    paymentData.copy(
+                                        amount = amountValue.toInt(),
+                                        method = paymentValue
+                                    )
                                 )
                                 onDismiss()
                             }
@@ -690,6 +701,172 @@ fun ModifyWorkInListDialog(
                             }
                         },
                         onDecline = { onDeleteButtonClick(workDataClass) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NewAnnotationsDialog(
+    show: Boolean,
+    titleText: String,
+    descriptionText: String,
+    onDismiss: () -> Unit,
+    onTitleChange: (String) -> Unit,
+    onAcceptButtonClicked: () -> Unit,
+    onDescriptionChange: (String) -> Unit
+) {
+
+
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() },
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.new_annotation),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(4.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    TextField(
+                        value = titleText,
+                        onValueChange = { onTitleChange(it) },
+                        label = { Text(stringResource(R.string.annotation_title)) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray,
+                            focusedLabelColor = ContrastColor,
+                            unfocusedLabelColor = TextColor
+                        ),
+                        singleLine = true
+                    )
+                    TextField(
+                        value = descriptionText,
+                        onValueChange = {
+                            onDescriptionChange(it)
+                        },
+                        label = { Text(stringResource(R.string.description)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedLabelColor = ContrastColor,
+                            unfocusedLabelColor = TextColor
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        maxLines = 5
+                    )
+                    Spacer(Modifier.size(32.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
+                        onAccept = { onAcceptButtonClicked() },
+                        onDecline = { onDismiss() }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditAnnotationDialog(
+    show: Boolean,
+    titleText: String,
+    descriptionText: String,
+    onDismiss: () -> Unit,
+    onAcceptButtonClicked: () -> Unit,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit
+) {
+
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() },
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    TextField(
+                        value = titleText,
+                        onValueChange = { onTitleChange(it) },
+                        placeholder = { Text(stringResource(R.string.annotation_title)) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray,
+                            focusedLabelColor = ContrastColor,
+                            unfocusedLabelColor = TextColor
+                        ),
+                        singleLine = true
+                    )
+                    HorizontalDividerCard()
+                    TextField(
+                        value = descriptionText,
+                        onValueChange = {
+                            onDescriptionChange(it)
+                        },
+                        placeholder = { Text(stringResource(R.string.description)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                            focusedLabelColor = ContrastColor,
+                            unfocusedLabelColor = TextColor
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        maxLines = 5
+                    )
+                    Spacer(Modifier.size(32.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
+                        onAccept = { onAcceptButtonClicked() },
+                        onDecline = { onDismiss() }
                     )
                 }
             }

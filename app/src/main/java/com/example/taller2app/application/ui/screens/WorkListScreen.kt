@@ -1,4 +1,4 @@
-package com.example.taller2app.application.ui
+package com.example.taller2app.application.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,9 +43,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.TallerViewModel
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.application.ui.dataClasses.getLocalDate
+import com.example.taller2app.application.ui.items.AddNewWorkDialog
+import com.example.taller2app.application.ui.items.ModifyWorkInListDialog
+import com.example.taller2app.application.ui.items.SimpleFabItem
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground

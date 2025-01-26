@@ -12,18 +12,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.taller2app.application.data.Routes
-import com.example.taller2app.application.ui.AnnotationsScreen
-import com.example.taller2app.application.ui.BottomBarItem
-import com.example.taller2app.application.ui.HomeScreen
+import com.example.taller2app.application.ui.screens.AnnotationsScreen
+import com.example.taller2app.application.ui.items.BottomBarItem
+import com.example.taller2app.application.ui.screens.HomeScreen
 import com.example.taller2app.application.ui.TallerViewModel
-import com.example.taller2app.application.ui.WorkListScreen
+import com.example.taller2app.application.ui.screens.WorkListScreen
 import com.example.taller2app.ui.theme.Taller2AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel:TallerViewModel by viewModels()
+    private val viewModel: TallerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController, startDestination = Routes.Home.route) {
                         composable(Routes.Home.route) { HomeScreen(innerPadding, viewModel) }
                         composable(Routes.Works.route) { WorkListScreen(innerPadding, viewModel) }
-                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding) }
+                        composable(Routes.Annotations.route) { AnnotationsScreen(innerPadding, viewModel) }
                     }
 
 

@@ -4,6 +4,7 @@
     <string name="works">Works</string>
     <string name="search_work">Search work</string>
     <string name="annotations">Annotations</string>
+    <string name="no_annotations_found">No Annotations found</string>
     <string name="enter_amount">Enter amount</string>
     <string name="home">Home</string>
     <string name="payments_received">Payments received</string>
@@ -16,12 +17,15 @@
     <string name="accept">Accept</string>
     <string name="modify">Modify</string>
     <string name="unit_price">Unit Price</string>
+    <string name="description">Description</string>
     <string name="delete">Delete</string>
     <string name="decline">Decline</string>
     <string name="add_new_work">Add new work</string>
     <string name="edit_work">Edit work</string>
+    <string name="new_annotation">New Annotation</string>
     <string name="edit_payment">Edit Payment</string>
     <string name="work_description">Work description here</string>
+    <string name="annotation_title">Annotation title</string>
     <string name="add_new_payment">Add new payment</string>
     <string name="no_works_found">No works found</string>
     <string name="no_payments_found">No payments found</string>

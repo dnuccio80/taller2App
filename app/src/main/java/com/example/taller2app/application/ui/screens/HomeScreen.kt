@@ -1,4 +1,4 @@
-package com.example.taller2app.application.ui
+package com.example.taller2app.application.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -43,10 +43,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.taller2app.R
+import com.example.taller2app.application.ui.TallerViewModel
 import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
+import com.example.taller2app.application.ui.items.AddNewWorkDoneDialog
+import com.example.taller2app.application.ui.items.BodyTextItem
+import com.example.taller2app.application.ui.items.EditPaymentDialog
+import com.example.taller2app.application.ui.items.EditWorkDoneDialog
+import com.example.taller2app.application.ui.items.HorizontalDividerCard
+import com.example.taller2app.application.ui.items.NewPaymentDialog
+import com.example.taller2app.application.ui.items.TitleItem
+import com.example.taller2app.application.ui.sealedClasses.AvailablePaymentMethods
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
