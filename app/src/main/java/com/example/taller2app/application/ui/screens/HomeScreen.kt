@@ -212,7 +212,7 @@ private fun BalanceCardItem(
             Spacer(Modifier.size(16.dp))
             HorizontalDividerCard()
             Spacer(Modifier.size(16.dp))
-            BodyTextItem("${stringResource(R.string.work_done)}: $ $totalAmountInWorkDone")
+            BodyTextItem("${stringResource(R.string.work_done)}: $ ${viewModel.formatPrice(totalAmountInWorkDone)} ")
             Spacer(Modifier.size(8.dp))
             BodyTextItem("${stringResource(R.string.cash_received)}: $ ${viewModel.formatPrice(cashAmount)}")
             Spacer(Modifier.size(8.dp))
