@@ -1,5 +1,7 @@
 package com.example.taller2app.application.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,9 +19,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -53,6 +59,7 @@ import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.application.ui.dataClasses.getTotalPrice
 import com.example.taller2app.application.ui.items.AddNewWorkDoneDialog
 import com.example.taller2app.application.ui.items.BodyTextItem
+import com.example.taller2app.application.ui.items.ConfirmDialog
 import com.example.taller2app.application.ui.items.EditPaymentDialog
 import com.example.taller2app.application.ui.items.EditWorkDoneDialog
 import com.example.taller2app.application.ui.items.HorizontalDividerCard
@@ -66,6 +73,7 @@ import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.NegativeBalanceColor
 import com.example.taller2app.ui.theme.PositiveBalanceColor
 import com.example.taller2app.ui.theme.TextColor
+import kotlin.math.exp
 
 @Composable
 fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
@@ -121,14 +129,16 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                     start = 16.dp,
                     end = 16.dp
                 )
-        ) {
+                .verticalScroll(rememberScrollState()),
+
+            ) {
             TitleItem("home")
             Spacer(Modifier.size(16.dp))
             BalanceCardItem(
                 totalPaymentReceivedByCategory,
                 totalAmountInWorkDone,
                 viewModel
-            ) { viewModel.clearAllDataHomeScreen() }
+            )
             Spacer(Modifier.size(16.dp))
             WorkDoneCardItem(workDoneList,
                 onWorkDoneDataModified = {
@@ -142,7 +152,10 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 })
 
             Spacer(Modifier.size(16.dp))
-            PaymentReceivedCardItem(paymentReceivedList, viewModel) { viewModel.clearAllPaymentData() }
+            PaymentReceivedCardItem(
+                paymentReceivedList,
+                viewModel
+            )
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
@@ -191,7 +204,6 @@ private fun BalanceCardItem(
     totalPaymentReceived: Map<String, Int>,
     totalAmountInWorkDone: Int,
     viewModel: TallerViewModel,
-    onClearAllButtonClicked: () -> Unit
 ) {
 
     val cashAmount = totalPaymentReceived[AvailablePaymentMethods.Cash.paymentMethod] ?: 0
@@ -199,6 +211,8 @@ private fun BalanceCardItem(
 
     val balance = totalAmountInWorkDone - cashAmount - checkAmount
     val positiveBalance = balance >= 0
+
+    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
     Card(
         Modifier.fillMaxWidth(),
@@ -220,11 +234,11 @@ private fun BalanceCardItem(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 TitleItem(
                     text = stringResource(R.string.balance),
-                    if (positiveBalance) PositiveBalanceColor else NegativeBalanceColor,
+                    TextColor,
                     modifier = Modifier.weight(1f)
                 )
                 Button(
-                    onClick = { onClearAllButtonClicked() },
+                    onClick = { showConfirmDialog = true },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ContrastColor,
                         contentColor = TextColor
@@ -235,14 +249,13 @@ private fun BalanceCardItem(
                     Text(stringResource(R.string.clear_all))
                 }
             }
+            HorizontalDividerCard()
             Spacer(Modifier.size(8.dp))
             TitleItem(
                 "$ ${viewModel.formatPrice(balance)}",
                 if (positiveBalance) PositiveBalanceColor else NegativeBalanceColor
             )
-            Spacer(Modifier.size(16.dp))
-            HorizontalDividerCard()
-            Spacer(Modifier.size(16.dp))
+            Spacer(Modifier.size(8.dp))
             BodyTextItem(
                 "${stringResource(R.string.work_done)}: $ ${
                     viewModel.formatPrice(
@@ -268,19 +281,31 @@ private fun BalanceCardItem(
             )
         }
     }
+    ConfirmDialog(showConfirmDialog, stringResource(R.string.confirm_delete_all_data),
+        onAccept = {
+            showConfirmDialog = false
+            viewModel.clearAllDataHomeScreen()
+        },
+        onDismiss = {
+            showConfirmDialog = false
+        })
 }
 
 @Composable
 private fun PaymentReceivedCardItem(
     paymentReceivedList: State<List<PaymentDataClass>>,
     viewModel: TallerViewModel,
-    onClearAllButtonClicked: () -> Unit
 ) {
+
+    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val cardSize by animateDpAsState(if(expanded) 380.dp else 200.dp)
 
     Card(
         Modifier
             .fillMaxWidth()
-            .height(180.dp),
+            .height(cardSize),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),
@@ -298,11 +323,22 @@ private fun PaymentReceivedCardItem(
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 TitleItem(
-                    text = stringResource(R.string.payments_received),
+                    text = stringResource(R.string.payments),
                     modifier = Modifier.weight(1f)
                 )
                 Button(
-                    onClick = { onClearAllButtonClicked() },
+                    onClick = { expanded = !expanded },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ContrastColor,
+                        contentColor = TextColor
+                    ),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Icon(if(expanded)Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown , contentDescription = "expand/retract button", tint = TextColor)
+                }
+                Spacer(Modifier.width(16.dp))
+                Button(
+                    onClick = { showConfirmDialog = true },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ContrastColor,
                         contentColor = TextColor
@@ -332,6 +368,15 @@ private fun PaymentReceivedCardItem(
             }
         }
     }
+
+    ConfirmDialog(
+        showConfirmDialog, stringResource(R.string.confirm_delete_payment_data),
+        onDismiss = { showConfirmDialog = false },
+        onAccept = {
+            showConfirmDialog = false
+            viewModel.clearAllPaymentData()
+        }
+    )
 }
 
 @Composable
@@ -372,10 +417,14 @@ private fun WorkDoneCardItem(
     onClearDataButtonClicked: () -> Unit
 ) {
 
+    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val cardSize by animateDpAsState(if(expanded) 400.dp else 240.dp)
+
     Card(
         Modifier
             .fillMaxWidth()
-            .height(280.dp),
+            .height(cardSize),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),
@@ -394,7 +443,18 @@ private fun WorkDoneCardItem(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 TitleItem(text = stringResource(R.string.work_done), modifier = Modifier.weight(1f))
                 Button(
-                    onClick = { onClearDataButtonClicked() },
+                    onClick = { expanded = !expanded },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ContrastColor,
+                        contentColor = TextColor
+                    ),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Icon(if(expanded)Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown , contentDescription = "expand/retract button", tint = TextColor)
+                }
+                Spacer(Modifier.width(16.dp))
+                Button(
+                    onClick = { showConfirmDialog = true },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ContrastColor,
                         contentColor = TextColor
@@ -431,6 +491,15 @@ private fun WorkDoneCardItem(
 
         }
     }
+    ConfirmDialog(
+        show = showConfirmDialog,
+        text = stringResource(R.string.confirm_delete_work_done_data),
+        onDismiss = { showConfirmDialog = false },
+        onAccept = {
+            showConfirmDialog = false
+            onClearDataButtonClicked()
+        }
+    )
 }
 
 @Composable
@@ -508,7 +577,7 @@ fun HomeFabItem(
             bottom = innerPadding.calculateBottomPadding() + 16.dp,
             end = 8.dp
         ),
-        containerColor = ButtonColor,
+        containerColor = ContrastColor,
         contentColor = TextColor
 
     ) {
@@ -539,7 +608,7 @@ fun DropdownMenuHomeItem(
         expanded = expandedValue,
         onDismissRequest = { onDismiss() },
         offset = DpOffset((-34).dp, 0.dp),
-        modifier = Modifier.background(ButtonColor)
+        modifier = Modifier.background(ContrastColor)
     ) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.add_new_work)) },

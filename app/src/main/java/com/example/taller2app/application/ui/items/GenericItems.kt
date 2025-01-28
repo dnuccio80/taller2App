@@ -20,7 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.taller2app.ui.theme.AcceptButtonColor
 import com.example.taller2app.ui.theme.ButtonColor
+import com.example.taller2app.ui.theme.ContrastColor
+import com.example.taller2app.ui.theme.DeleteButtonColor
 import com.example.taller2app.ui.theme.TextColor
 
 @Composable
@@ -32,7 +35,7 @@ fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues, onClick: () -
             bottom = innerPadding.calculateBottomPadding() + 16.dp,
             end = 8.dp
         ),
-        containerColor = ButtonColor,
+        containerColor = ContrastColor,
         contentColor = TextColor
 
     ) {
@@ -44,16 +47,24 @@ fun SimpleFabItem(modifier: Modifier, innerPadding: PaddingValues, onClick: () -
 fun AcceptDeclineButtons(
     acceptText: String,
     declineText: String,
-    acceptContainerColor: Color = ButtonColor,
+    acceptContainerColor: Color = AcceptButtonColor,
     acceptContentColor: Color = TextColor,
-    declineContainerColor: Color = ButtonColor,
+    declineContainerColor: Color = DeleteButtonColor,
     declineContentColor: Color = TextColor,
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-        ButtonItem(acceptText, containerColor = acceptContainerColor, contentColor = acceptContentColor, onClick = { onAccept() })
-        ButtonItem(declineText, containerColor = declineContainerColor, contentColor = declineContentColor, onClick = { onDecline() })
+        ButtonItem(
+            declineText,
+            containerColor = declineContainerColor,
+            contentColor = declineContentColor,
+            onClick = { onDecline() })
+        ButtonItem(
+            acceptText,
+            containerColor = acceptContainerColor,
+            contentColor = acceptContentColor,
+            onClick = { onAccept() })
     }
 }
 
@@ -103,3 +114,4 @@ fun HorizontalDividerCard() {
         color = ButtonColor
     )
 }
+

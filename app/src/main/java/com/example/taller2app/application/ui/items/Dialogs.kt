@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -503,7 +504,9 @@ fun SelectWorkDropdownMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { onDismiss() },
-        modifier = Modifier.background(ContrastColor).heightIn(max = 200.dp)
+        modifier = Modifier
+            .background(ContrastColor)
+            .heightIn(max = 200.dp)
     ) {
         if (workList.value.isEmpty()) {
             DropdownMenuItem(
@@ -871,6 +874,45 @@ fun EditAnnotationDialog(
                         acceptText = stringResource(R.string.accept),
                         declineText = stringResource(R.string.decline),
                         onAccept = { onAcceptButtonClicked() },
+                        onDecline = { onDismiss() }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ConfirmDialog(show: Boolean, text: String, onDismiss: () -> Unit, onAccept: () -> Unit) {
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() },
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text, color = TextColor, textAlign = TextAlign.Center)
+                    Spacer(Modifier.size(16.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.decline),
+                        acceptContainerColor = AcceptButtonColor,
+                        declineContainerColor = DeleteButtonColor,
+                        onAccept = { onAccept() },
                         onDecline = { onDismiss() }
                     )
                 }

@@ -199,16 +199,11 @@ fun WorkCardItem(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(workDataClass.description, modifier = Modifier.weight(.5f))
+            Text(workDataClass.description, modifier = Modifier.weight(1f))
             Text(
                 "$ ${workDataClass.formatNumber(workDataClass.unitPrice)}", modifier = Modifier
                     .padding(16.dp)
-                    .weight(.5f), textAlign = TextAlign.Start
-            )
-            Text(
-                workDataClass.getLocalDate(workDataClass.dateModified), modifier = Modifier
-                    .padding(16.dp)
-                    .weight(.5f)
+                    .weight(.7f), textAlign = TextAlign.Start
             )
             Icon(
                 Icons.Filled.Edit,

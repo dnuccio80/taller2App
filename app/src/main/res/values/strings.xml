@@ -7,7 +7,7 @@
     <string name="no_annotations_found">No Annotations found</string>
     <string name="enter_amount">Enter amount</string>
     <string name="home">Home</string>
-    <string name="payments_received">Payments received</string>
+    <string name="payments">Payments</string>
     <string name="cash_received">Cash received</string>
     <string name="checks_received">Checks received</string>
     <string name="new_payment">New payment</string>
@@ -31,6 +31,10 @@
     <string name="clear_all">Clear All</string>
     <string name="no_works_found">No works found</string>
     <string name="no_payments_found">No payments found</string>
+    <string name="expand">Expand</string>
     <string name="edit_work_done">Edit work done</string>
+    <string name="confirm_delete_all_data">Are you sure you want to delete all work done and payments received data?</string>
+    <string name="confirm_delete_work_done_data">Are you sure you want to delete all work done data?</string>
+    <string name="confirm_delete_payment_data">Are you sure you want to delete all payments received data?</string>
     <string name="quantity">Quantity</string>
 </resources>
