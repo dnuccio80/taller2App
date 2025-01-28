@@ -1,5 +1,6 @@
 package com.example.taller2app.application.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,6 +50,7 @@ import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
+import com.example.taller2app.application.ui.dataClasses.getTotalPrice
 import com.example.taller2app.application.ui.items.AddNewWorkDoneDialog
 import com.example.taller2app.application.ui.items.BodyTextItem
 import com.example.taller2app.application.ui.items.EditPaymentDialog
@@ -76,7 +79,6 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val totalPaymentReceivedByCategory by viewModel.totalPaymentReceivedByCategory.collectAsState()
     val totalAmountInWorkDone by viewModel.totalAmountInWorkDone.collectAsState()
-
 
     // Saver for SelectedWorkDataClass
     val workDataClassSaver = Saver<WorkDataClass, List<Any>>(
@@ -360,6 +362,7 @@ fun WorkDoneItem(
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var quantityText by rememberSaveable { mutableStateOf(workDoneDataClass.quantity.toString()) }
 
+
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -368,7 +371,7 @@ fun WorkDoneItem(
         BodyTextItem("x ${workDoneDataClass.quantity}", Modifier.weight(.3f))
         Spacer(Modifier.width(16.dp))
         BodyTextItem(
-            "$ ${workDoneDataClass.formatNumber(workDoneDataClass.totalPrice)}",
+            "$ ${workDoneDataClass.formatNumber(workDoneDataClass.getTotalPrice())}",
             Modifier.weight(.5f)
         )
         Spacer(Modifier.width(16.dp))
@@ -394,7 +397,6 @@ fun WorkDoneItem(
                     onAcceptModifyButtonClicked(
                         workDoneDataClass.copy(
                             quantity = quantityText.toInt(),
-                            totalPrice = workDoneDataClass.workDataClass.unitPrice * quantityText.toInt()
                         )
                     )
                     showDialog = false

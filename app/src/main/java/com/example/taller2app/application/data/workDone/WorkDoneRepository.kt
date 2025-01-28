@@ -1,5 +1,6 @@
 package com.example.taller2app.application.data.workDone
 
+import com.example.taller2app.application.data.workList.WorkDao
 import com.example.taller2app.application.data.workList.toWorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
@@ -11,9 +12,14 @@ import javax.inject.Inject
 
 class WorkDoneRepository @Inject constructor(private val workDoneDao: WorkDoneDao) {
 
-    fun getAllWorkDoneList(): Flow<List<WorkDoneDataClass>> = workDoneDao.getAllWorkDoneList().map {
-        it.map { entity ->
-            entity.toWorkDoneDataClass()
+    fun getAllWorkDoneList(): Flow<List<WorkDoneDataClass>> = workDoneDao.getAllWorkDoneWithWorkList().map {list ->
+        list.map {workDoneWithWork ->
+            WorkDoneDataClass(
+                id = workDoneWithWork.workDoneEntity.id,
+                workDataClass = workDoneWithWork.workEntity.toWorkDataClass(),
+                quantity = workDoneWithWork.workDoneEntity.quantity
+            )
+
         }
     }
 

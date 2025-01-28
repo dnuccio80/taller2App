@@ -17,6 +17,9 @@ interface WorkDao {
     @Query("SELECT * FROM WorkEntity WHERE description LIKE '%' || :query || '%'")
     fun getWorkByDescription(query: String): Flow<List<WorkEntity>>
 
+    @Query("SELECT * FROM WorkEntity WHERE id = :workId")
+    suspend fun getWorkById(workId: Int): WorkEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewWork(workEntity: WorkEntity)
 

@@ -27,6 +27,7 @@ import com.example.taller2app.application.ui.dataClasses.AnnotationsDataClass
 import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
+import com.example.taller2app.application.ui.dataClasses.getTotalPrice
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -108,11 +109,10 @@ class TallerViewModel @Inject constructor(
     )
 
     val totalAmountInWorkDone = _workDoneList.map { list ->
-        list.sumOf { it.totalPrice }
+        list.sumOf { it.getTotalPrice() }
     }.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
-
 
     // Work List Screen
 
@@ -187,7 +187,6 @@ class TallerViewModel @Inject constructor(
 
     fun addNewWorkDone(work: WorkDoneDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.i("Damian", "new work done added: $work")
             addNewWorkDoneUseCase(work)
         }
     }
