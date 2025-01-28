@@ -13,6 +13,9 @@ interface PaymentDao {
     @Query("SELECT * FROM PaymentEntity")
     fun getAllPayments(): Flow<List<PaymentEntity>>
 
+    @Query("DELETE FROM PAYMENTENTITY")
+    suspend fun deleteAllPaymentData()
+
     @Insert
     suspend fun addNewPayment(paymentDataEntity: PaymentEntity)
 

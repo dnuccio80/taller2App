@@ -1,9 +1,7 @@
 package com.example.taller2app.application.ui
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +10,7 @@ import com.example.taller2app.application.domain.annotations.DeleteAnnotationUse
 import com.example.taller2app.application.domain.annotations.GetAllAnnotationsUseCase
 import com.example.taller2app.application.domain.annotations.UpdateAnnotationUseCase
 import com.example.taller2app.application.domain.payments.AddNewPaymentUseCase
+import com.example.taller2app.application.domain.payments.DeleteAllPaymentDataUseCase
 import com.example.taller2app.application.domain.payments.DeletePaymentUseCase
 import com.example.taller2app.application.domain.payments.GetAllPaymentsUseCase
 import com.example.taller2app.application.domain.payments.UpdatePaymentUseCase
@@ -20,6 +19,7 @@ import com.example.taller2app.application.domain.works.DeleteWorkUseCase
 import com.example.taller2app.application.domain.works.GetAllWorkListUseCase
 import com.example.taller2app.application.domain.works.UpdateWorkUseCase
 import com.example.taller2app.application.domain.worksDone.AddNewWorkDoneUseCase
+import com.example.taller2app.application.domain.worksDone.DeleteAllWorkDoneDataUseCase
 import com.example.taller2app.application.domain.worksDone.DeleteWorkDoneUseCase
 import com.example.taller2app.application.domain.worksDone.GetAllWorkDoneListUseCase
 import com.example.taller2app.application.domain.worksDone.UpdateWorkDoneUseCase
@@ -60,12 +60,14 @@ class TallerViewModel @Inject constructor(
     private val addNewWorkDoneUseCase: AddNewWorkDoneUseCase,
     private val updateWorkDoneUseCase: UpdateWorkDoneUseCase,
     private val deleteWorkDoneUseCase: DeleteWorkDoneUseCase,
+    private val deleteAllWorkDoneDataUseCase: DeleteAllWorkDoneDataUseCase,
 
     // Payments
     getAllPaymentsUseCase: GetAllPaymentsUseCase,
     private val addNewPaymentUseCase: AddNewPaymentUseCase,
     private val updatePaymentUseCase: UpdatePaymentUseCase,
     private val deletePaymentUseCase: DeletePaymentUseCase,
+    private val deleteAllPaymentDataUseCase: DeleteAllPaymentDataUseCase,
 
     // Annotations
     getAllAnnotationsUseCase: GetAllAnnotationsUseCase,
@@ -218,6 +220,23 @@ class TallerViewModel @Inject constructor(
     fun deletePayment(payment: PaymentDataClass) {
         viewModelScope.launch(Dispatchers.IO) {
             deletePaymentUseCase(payment)
+        }
+    }
+
+    fun clearAllDataHomeScreen(){
+        clearAllWorkDoneData()
+        clearAllPaymentData()
+    }
+
+    fun clearAllWorkDoneData(){
+        viewModelScope.launch (Dispatchers.IO){
+            deleteAllWorkDoneDataUseCase()
+        }
+    }
+
+    fun clearAllPaymentData(){
+        viewModelScope.launch (Dispatchers.IO){
+            deleteAllPaymentDataUseCase()
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.taller2app.application.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -32,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -62,6 +62,7 @@ import com.example.taller2app.application.ui.sealedClasses.AvailablePaymentMetho
 import com.example.taller2app.ui.theme.AppBackground
 import com.example.taller2app.ui.theme.ButtonColor
 import com.example.taller2app.ui.theme.CardBackground
+import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.NegativeBalanceColor
 import com.example.taller2app.ui.theme.PositiveBalanceColor
 import com.example.taller2app.ui.theme.TextColor
@@ -123,7 +124,11 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
         ) {
             TitleItem("home")
             Spacer(Modifier.size(16.dp))
-            BalanceCardItem(totalPaymentReceivedByCategory, totalAmountInWorkDone, viewModel)
+            BalanceCardItem(
+                totalPaymentReceivedByCategory,
+                totalAmountInWorkDone,
+                viewModel
+            ) { viewModel.clearAllDataHomeScreen() }
             Spacer(Modifier.size(16.dp))
             WorkDoneCardItem(workDoneList,
                 onWorkDoneDataModified = {
@@ -131,10 +136,13 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 },
                 onDeletedButtonClicked = {
                     viewModel.deleteWorkDone(it)
+                },
+                onClearDataButtonClicked = {
+                    viewModel.clearAllWorkDoneData()
                 })
 
             Spacer(Modifier.size(16.dp))
-            PaymentReceivedCardItem(paymentReceivedList, viewModel)
+            PaymentReceivedCardItem(paymentReceivedList, viewModel) { viewModel.clearAllPaymentData() }
         }
         HomeFabItem(
             Modifier.align(Alignment.BottomEnd),
@@ -182,13 +190,14 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 private fun BalanceCardItem(
     totalPaymentReceived: Map<String, Int>,
     totalAmountInWorkDone: Int,
-    viewModel: TallerViewModel
+    viewModel: TallerViewModel,
+    onClearAllButtonClicked: () -> Unit
 ) {
 
-    val cashAmount = totalPaymentReceived[AvailablePaymentMethods.Cash.paymentMethod]?:0
-    val checkAmount = totalPaymentReceived[AvailablePaymentMethods.Check.paymentMethod]?:0
+    val cashAmount = totalPaymentReceived[AvailablePaymentMethods.Cash.paymentMethod] ?: 0
+    val checkAmount = totalPaymentReceived[AvailablePaymentMethods.Check.paymentMethod] ?: 0
 
-    val balance =  totalAmountInWorkDone - cashAmount - checkAmount
+    val balance = totalAmountInWorkDone - cashAmount - checkAmount
     val positiveBalance = balance >= 0
 
     Card(
@@ -208,23 +217,65 @@ private fun BalanceCardItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TitleItem(text = stringResource(R.string.balance), if(positiveBalance) PositiveBalanceColor else NegativeBalanceColor)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                TitleItem(
+                    text = stringResource(R.string.balance),
+                    if (positiveBalance) PositiveBalanceColor else NegativeBalanceColor,
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = { onClearAllButtonClicked() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ContrastColor,
+                        contentColor = TextColor
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+
+                ) {
+                    Text(stringResource(R.string.clear_all))
+                }
+            }
             Spacer(Modifier.size(8.dp))
-            TitleItem("$ ${viewModel.formatPrice(balance)}", if(positiveBalance) PositiveBalanceColor else NegativeBalanceColor)
+            TitleItem(
+                "$ ${viewModel.formatPrice(balance)}",
+                if (positiveBalance) PositiveBalanceColor else NegativeBalanceColor
+            )
             Spacer(Modifier.size(16.dp))
             HorizontalDividerCard()
             Spacer(Modifier.size(16.dp))
-            BodyTextItem("${stringResource(R.string.work_done)}: $ ${viewModel.formatPrice(totalAmountInWorkDone)} ")
+            BodyTextItem(
+                "${stringResource(R.string.work_done)}: $ ${
+                    viewModel.formatPrice(
+                        totalAmountInWorkDone
+                    )
+                } "
+            )
             Spacer(Modifier.size(8.dp))
-            BodyTextItem("${stringResource(R.string.cash_received)}: $ ${viewModel.formatPrice(cashAmount)}")
+            BodyTextItem(
+                "${stringResource(R.string.cash_received)}: $ ${
+                    viewModel.formatPrice(
+                        cashAmount
+                    )
+                }"
+            )
             Spacer(Modifier.size(8.dp))
-            BodyTextItem("${stringResource(R.string.checks_received)}: $ ${viewModel.formatPrice(checkAmount)}")
+            BodyTextItem(
+                "${stringResource(R.string.checks_received)}: $ ${
+                    viewModel.formatPrice(
+                        checkAmount
+                    )
+                }"
+            )
         }
     }
 }
 
 @Composable
-private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataClass>>, viewModel: TallerViewModel) {
+private fun PaymentReceivedCardItem(
+    paymentReceivedList: State<List<PaymentDataClass>>,
+    viewModel: TallerViewModel,
+    onClearAllButtonClicked: () -> Unit
+) {
 
     Card(
         Modifier
@@ -245,7 +296,23 @@ private fun PaymentReceivedCardItem(paymentReceivedList: State<List<PaymentDataC
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TitleItem(text = stringResource(R.string.payments_received))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                TitleItem(
+                    text = stringResource(R.string.payments_received),
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = { onClearAllButtonClicked() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ContrastColor,
+                        contentColor = TextColor
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+
+                ) {
+                    Text(stringResource(R.string.clear))
+                }
+            }
             Spacer(Modifier.size(4.dp))
             HorizontalDividerCard()
             Spacer(Modifier.size(16.dp))
@@ -301,7 +368,8 @@ fun PaymentCardItem(payment: PaymentDataClass, viewModel: TallerViewModel) {
 private fun WorkDoneCardItem(
     workDoneList: State<List<WorkDoneDataClass>>,
     onWorkDoneDataModified: (WorkDoneDataClass) -> Unit,
-    onDeletedButtonClicked: (WorkDoneDataClass) -> Unit
+    onDeletedButtonClicked: (WorkDoneDataClass) -> Unit,
+    onClearDataButtonClicked: () -> Unit
 ) {
 
     Card(
@@ -323,7 +391,20 @@ private fun WorkDoneCardItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TitleItem(text = stringResource(R.string.work_done))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                TitleItem(text = stringResource(R.string.work_done), modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { onClearDataButtonClicked() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ContrastColor,
+                        contentColor = TextColor
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+
+                ) {
+                    Text(stringResource(R.string.clear))
+                }
+            }
             Spacer(Modifier.size(4.dp))
             HorizontalDividerCard()
             Spacer(Modifier.size(16.dp))

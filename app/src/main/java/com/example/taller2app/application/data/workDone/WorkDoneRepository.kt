@@ -23,6 +23,10 @@ class WorkDoneRepository @Inject constructor(private val workDoneDao: WorkDoneDa
         }
     }
 
+    suspend fun deleteAllWorkDoneData(){
+        workDoneDao.deleteAllWorkDoneData()
+    }
+
     suspend fun addNewWorkDone(workDone:WorkDoneDataClass) {
         workDoneDao.addNewWorkDone(workDone.toWorkDoneDataEntity())
     }

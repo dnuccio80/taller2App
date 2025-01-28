@@ -21,6 +21,9 @@ interface WorkDoneDao {
     @Query("SELECT * FROM WorkDoneEntity")
     fun getAllWorkDoneWithWorkList(): Flow<List<WorkWithWorkDoneRelation>>
 
+    @Query("DELETE FROM WorkDoneEntity")
+    suspend fun deleteAllWorkDoneData()
+
     @Insert
     suspend fun addNewWorkDone(workDone: WorkDoneEntity)
 

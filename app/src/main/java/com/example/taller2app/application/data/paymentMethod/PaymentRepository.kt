@@ -14,6 +14,10 @@ class PaymentRepository @Inject constructor(private val paymentDao: PaymentDao) 
         }
     }
 
+    suspend fun deleteAllPaymentData(){
+        paymentDao.deleteAllPaymentData()
+    }
+
     suspend fun addNewPayment(paymentDataClass: PaymentDataClass){
         paymentDao.addNewPayment(paymentDataClass.toPaymentDataEntity())
     }
