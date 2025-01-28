@@ -8,8 +8,10 @@ import javax.inject.Inject
 
 class WorkRepository @Inject constructor(private val workDao: WorkDao) {
 
-    fun getAllWorkList(): Flow<List<WorkDataClass>> = workDao.getAllWorkList().map {
-        it.map { entity ->
+    fun getAllWorkList(): Flow<List<WorkDataClass>> = workDao.getAllWorkList().map { list ->
+        list.sortedBy {
+            it.description
+        }.map {entity ->
             entity.toWorkDataClass()
         }
     }
