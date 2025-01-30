@@ -22,4 +22,5 @@ data class WorkDoneEntity(
     val id: Int = 0,
     val workId:Int = 0,
     val quantity: Int,
+    val dateModified: Long
 )

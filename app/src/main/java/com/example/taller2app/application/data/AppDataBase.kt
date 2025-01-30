@@ -13,7 +13,7 @@ import com.example.taller2app.application.data.workDone.WorkDoneEntity
 import com.example.taller2app.application.data.workList.WorkDao
 import com.example.taller2app.application.data.workList.WorkEntity
 
-@Database(entities = [WorkEntity::class, WorkDoneEntity::class, PaymentEntity::class, AnnotationsEntity::class, CreditDebitBalanceEntity::class], version = 7)
+@Database(entities = [WorkEntity::class, WorkDoneEntity::class, PaymentEntity::class, AnnotationsEntity::class, CreditDebitBalanceEntity::class], version = 8)
 abstract class AppDataBase :RoomDatabase(){
     abstract val workDao: WorkDao
     abstract val workDoneDao:WorkDoneDao

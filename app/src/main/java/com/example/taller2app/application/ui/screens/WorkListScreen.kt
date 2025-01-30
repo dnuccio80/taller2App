@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -51,7 +52,9 @@ import com.example.taller2app.application.ui.TallerViewModel
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.application.ui.dataClasses.getLocalDate
+import com.example.taller2app.application.ui.dataClasses.getTotalPrice
 import com.example.taller2app.application.ui.items.AddNewWorkDialog
+import com.example.taller2app.application.ui.items.BodyTextItem
 import com.example.taller2app.application.ui.items.ConfirmDialog
 import com.example.taller2app.application.ui.items.ModifyWorkInListDialog
 import com.example.taller2app.application.ui.items.SimpleFabItem
@@ -253,7 +256,11 @@ fun WorkCardItem(
 ) {
 
     Card(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .clickable {
+                onEditButtonClicked(workDataClass)
+            },
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),
@@ -266,22 +273,30 @@ fun WorkCardItem(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(workDataClass.description, modifier = Modifier.weight(1f))
-            Text(
-                "$ ${workDataClass.formatNumber(workDataClass.unitPrice)}", modifier = Modifier
-                    .padding(16.dp)
-                    .weight(.7f), textAlign = TextAlign.Start
-            )
-            Icon(
-                Icons.Filled.Edit,
-                contentDescription = "Edit work",
-                tint = Color.White,
-                modifier = Modifier.clickable { onEditButtonClicked(workDataClass) })
+            Text(workDataClass.description, modifier = Modifier.weight(4f))
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "$", modifier = Modifier
+                        .padding(vertical = 16.dp, horizontal = 8.dp),
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    workDataClass.formatNumber(workDataClass.unitPrice), modifier = Modifier
+                        .padding(vertical = 16.dp),
+                    textAlign = TextAlign.Start
+                )
+            }
+
+
         }
     }
-
 }
 
 

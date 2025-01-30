@@ -10,7 +10,7 @@ interface CreditDebitBalanceDao {
     @Query("SELECT COALESCE((SELECT amount FROM CreditDebitBalanceEntity LIMIT 1), 120)")
     fun getCurrentAmount():Flow<Int>
 
-    @Query("INSERT INTO CreditDebitBalanceEntity (amount) SELECT 100 WHERE NOT EXISTS (SELECT 1 FROM CreditDebitBalanceEntity LIMIT 1) ")
+    @Query("INSERT INTO CreditDebitBalanceEntity (amount) SELECT 0 WHERE NOT EXISTS (SELECT 1 FROM CreditDebitBalanceEntity LIMIT 1) ")
     suspend fun insertInitialAmount()
 
     @Query("UPDATE CreditDebitBalanceEntity SET amount = amount + :value")

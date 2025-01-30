@@ -17,7 +17,8 @@ class WorkDoneRepository @Inject constructor(private val workDoneDao: WorkDoneDa
             WorkDoneDataClass(
                 id = workDoneWithWork.workDoneEntity.id,
                 workDataClass = workDoneWithWork.workEntity.toWorkDataClass(),
-                quantity = workDoneWithWork.workDoneEntity.quantity
+                quantity = workDoneWithWork.workDoneEntity.quantity,
+                dateModified = workDoneWithWork.workDoneEntity.dateModified
             )
 
         }

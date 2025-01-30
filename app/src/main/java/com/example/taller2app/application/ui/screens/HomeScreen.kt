@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -453,28 +454,22 @@ fun PaymentCardItem(payment: PaymentDataClass, viewModel: TallerViewModel) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
     Row(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .clickable {
+                showDialog = true
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem(payment.method, Modifier.weight(.5f))
-        Spacer(Modifier.width(8.dp))
-        BodyTextItem("$ ${payment.formatNumber(payment.amount)}", Modifier.weight(.3f))
-        Spacer(Modifier.width(16.dp))
-        Icon(
-            Icons.Filled.Edit,
-            contentDescription = "edit work",
-            tint = Color.White,
-            modifier = Modifier.clickable {
-                showDialog = true
-            }
-        )
+        BodyTextItem(payment.method, Modifier.weight(1f))
+        BodyTextItem("$ ${payment.formatNumber(payment.amount)}")
+    }
         EditPaymentDialog(
             show = showDialog,
             viewModel,
             paymentData = payment,
             onDismiss = { showDialog = false }
         )
-    }
 }
 
 @Composable
@@ -586,25 +581,29 @@ fun WorkDoneItem(
 
 
     Row(
-        Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth()
+            .clickable {
+                showDialog = true
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BodyTextItem(workDoneDataClass.workDataClass.description, Modifier.weight(1f))
-        BodyTextItem("x ${workDoneDataClass.quantity}", Modifier.weight(.3f))
+        BodyTextItem(workDoneDataClass.workDataClass.description, Modifier.weight(2f))
+        BodyTextItem("x ${workDoneDataClass.quantity}", Modifier.weight(1f))
         Spacer(Modifier.width(16.dp))
-        BodyTextItem(
-            "$ ${workDoneDataClass.formatNumber(workDoneDataClass.getTotalPrice())}",
-            Modifier.weight(.5f)
-        )
-        Spacer(Modifier.width(16.dp))
-        Icon(
-            Icons.Filled.Edit,
-            contentDescription = "edit work",
-            tint = Color.White,
-            modifier = Modifier.clickable {
-                showDialog = true
-            }
-        )
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BodyTextItem(
+                "$",
+                modifier = Modifier.padding(4.dp)
+            )
+            BodyTextItem(
+                workDoneDataClass.formatNumber(workDoneDataClass.getTotalPrice()),
+                modifier = Modifier.weight(1f)
+            )
+        }
         EditWorkDoneDialog(
             showDialog,
             quantityText,

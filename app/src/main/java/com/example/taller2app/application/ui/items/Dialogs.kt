@@ -5,16 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -24,8 +20,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -53,7 +47,7 @@ import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.TallerViewModel
-import com.example.taller2app.application.ui.dataClasses.AnnotationsDataClass
+import com.example.taller2app.application.ui.dataClasses.getLocalDate
 import com.example.taller2app.application.ui.sealedClasses.AvailablePaymentMethods
 import com.example.taller2app.ui.theme.AcceptButtonColor
 import com.example.taller2app.ui.theme.ButtonColor
@@ -61,7 +55,6 @@ import com.example.taller2app.ui.theme.CardBackground
 import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.DeleteButtonColor
 import com.example.taller2app.ui.theme.TextColor
-import kotlin.math.max
 
 @Composable
 fun NewPaymentDialog(show: Boolean, viewModel: TallerViewModel, onDismiss: () -> Unit) {
@@ -319,6 +312,9 @@ fun EditWorkDoneDialog(
                         onAccept = { onAcceptButtonClicked() },
                         onDecline = { onDeleteButtonClick() }
                     )
+                    Spacer(Modifier.size(16.dp))
+                    Text("Date: ${workDoneToEdit.getLocalDate(workDoneToEdit.dateModified)}", color = ButtonColor)
+
                 }
             }
         }
