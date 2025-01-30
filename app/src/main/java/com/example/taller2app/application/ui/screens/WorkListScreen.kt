@@ -30,9 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,6 +52,7 @@ import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.application.ui.dataClasses.getLocalDate
 import com.example.taller2app.application.ui.items.AddNewWorkDialog
+import com.example.taller2app.application.ui.items.ConfirmDialog
 import com.example.taller2app.application.ui.items.ModifyWorkInListDialog
 import com.example.taller2app.application.ui.items.SimpleFabItem
 import com.example.taller2app.ui.theme.AppBackground
@@ -66,6 +69,43 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val addNewWorkDescription = viewModel.addNewWorkDescription.collectAsState()
     val unitPriceNewWorkText = viewModel.unitPriceNewWorkText.collectAsState()
+
+    // Modify Dialog
+    var showModifyWorkDialog by rememberSaveable { mutableStateOf(false) }
+    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Saver for SelectedWorkDataClass
+    val workDataClassSaver = Saver<WorkDataClass, List<Any>>(
+        save = { workData ->
+            listOf(
+                workData.id,
+                workData.description,
+                workData.unitPrice,
+                workData.dateModified
+            )
+        },
+        restore = { list ->
+            WorkDataClass(
+                id = list[0] as Int,
+                description = list[1] as String,
+                unitPrice = list[2] as Int,
+                dateModified = list[3] as Long
+            )
+        }
+    )
+
+    var workDataClassToEdit by rememberSaveable(stateSaver = workDataClassSaver) {
+        mutableStateOf(
+            WorkDataClass(description = "", unitPrice = 0)
+        )
+    }
+    var descriptionEditedText by rememberSaveable { mutableStateOf(workDataClassToEdit.description) }
+    var unitPriceEditedText by rememberSaveable { mutableStateOf(workDataClassToEdit.unitPrice.toString()) }
+
+    LaunchedEffect(workDataClassToEdit) {
+        descriptionEditedText = workDataClassToEdit.description
+        unitPriceEditedText = workDataClassToEdit.unitPrice.toString()
+    }
 
     Box(
         Modifier
@@ -92,15 +132,10 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                     }
                 } else {
                     items(workList.value) {
-                        WorkCardItem(
-                            it,
-                            onAcceptButtonClick = { editedWorkData ->
-                                viewModel.updateWorkInWorkList(
-                                    editedWorkData
-                                )
-                            },
-                            onDeleteButtonClick = {workData -> viewModel.deleteWorkInWorkList(workData) },
-                        )
+                        WorkCardItem(it) { workData ->
+                            workDataClassToEdit = workData
+                            showModifyWorkDialog = true
+                        }
                     }
                 }
             }
@@ -115,7 +150,10 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             unitPriceNewWorkText.value,
             onWorkDescriptionChange = { viewModel.updateAddNewWorkDescription(it) },
             onUnitPriceChange = { viewModel.updateUnitPriceNewWorkText(it) },
-            onDismiss = { viewModel.updateShowAddNewWorkDialog(false) },
+            onDismiss = {
+                viewModel.updateShowAddNewWorkDialog(false)
+                viewModel.clearAddWorkListDialogData()
+            },
             onAcceptButtonClicked = {
                 if (viewModel.hasAllCorrectFields(
                         addNewWorkDescription.value,
@@ -135,7 +173,41 @@ fun WorkListScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
                 viewModel.clearAddWorkListDialogData()
             },
         )
+        ModifyWorkInListDialog(
+            showModifyWorkDialog,
+            descriptionEditedText,
+            unitPriceEditedText,
+            lastModifText = workDataClassToEdit.getLocalDate(workDataClassToEdit.dateModified),
+            onDismiss = {
+                showModifyWorkDialog = false
+            },
+            onDescriptionChange = { descriptionEditedText = it },
+            onUnitPriceChange = { unitPriceEditedText = it },
+            onAcceptButtonClick = {
+                if (viewModel.hasAllCorrectFields(descriptionEditedText, unitPriceEditedText)) {
+                    showModifyWorkDialog = false
+                    viewModel.updateWorkInWorkList(
+                        workDataClassToEdit.copy(
+                            description = descriptionEditedText,
+                            unitPrice = unitPriceEditedText.toInt(),
+                            dateModified = System.currentTimeMillis()
+                        )
+                    )
+                }
+            },
+            onDeleteButtonClick = { showConfirmDialog = true }
+        )
     }
+    ConfirmDialog(
+        show = showConfirmDialog,
+        text = stringResource(R.string.confirm_delete_work_in_list),
+        onDismiss = { showConfirmDialog = false },
+        onAccept = {
+            viewModel.deleteWorkInWorkList(workDataClassToEdit)
+            showConfirmDialog = false
+            showModifyWorkDialog = false
+        }
+    )
 }
 
 @Composable
@@ -152,15 +224,15 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
         singleLine = true,
         trailingIcon = {
             Icon(
-                if(textValue.isEmpty()){
+                if (textValue.isEmpty()) {
                     Icons.Filled.Search
-                }else{
+                } else {
                     Icons.Filled.Close
                 },
                 contentDescription = "Search work button",
                 tint = Color.White,
                 modifier = Modifier.clickable {
-                    if(textValue.isNotEmpty()){
+                    if (textValue.isNotEmpty()) {
                         onValueChange("")
                     }
                 }
@@ -177,11 +249,8 @@ private fun SearchWorkTextField(textValue: String, onValueChange: (String) -> Un
 @Composable
 fun WorkCardItem(
     workDataClass: WorkDataClass,
-    onAcceptButtonClick: (WorkDataClass) -> Unit,
-    onDeleteButtonClick: (WorkDataClass) -> Unit,
+    onEditButtonClicked: (WorkDataClass) -> Unit
 ) {
-
-    var showDialog by rememberSaveable { mutableStateOf(false) }
 
     Card(
         Modifier.fillMaxWidth(),
@@ -209,25 +278,7 @@ fun WorkCardItem(
                 Icons.Filled.Edit,
                 contentDescription = "Edit work",
                 tint = Color.White,
-                modifier = Modifier.clickable {
-                    showDialog = true
-                })
-
-            ModifyWorkInListDialog(
-                showDialog,
-                workDataClass,
-                onDismiss = {
-                    showDialog = false
-                },
-                onAcceptButtonClick = {
-                    onAcceptButtonClick(it)
-                    showDialog = false
-                },
-                onDeleteButtonClick = {
-                    onDeleteButtonClick(it)
-                    showDialog = false
-                }
-            )
+                modifier = Modifier.clickable { onEditButtonClicked(workDataClass) })
         }
     }
 

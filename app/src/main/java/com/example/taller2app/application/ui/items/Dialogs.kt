@@ -597,21 +597,19 @@ fun AddNewWorkDialog(
 @Composable
 fun ModifyWorkInListDialog(
     show: Boolean,
-    workDataClass: WorkDataClass,
+    descriptionText:String,
+    unitPriceText:String,
+    lastModifText:String,
+    onDescriptionChange:(String) -> Unit,
+    onUnitPriceChange:(String) -> Unit,
     onDismiss: () -> Unit,
-    onAcceptButtonClick: (WorkDataClass) -> Unit,
-    onDeleteButtonClick: (WorkDataClass) -> Unit
+    onAcceptButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
-
-    var descriptionText by rememberSaveable { mutableStateOf(workDataClass.description) }
-    var unitPriceText by rememberSaveable { mutableStateOf(workDataClass.unitPrice.toString()) }
-
     if (show) {
         Dialog(
             onDismissRequest = {
                 onDismiss()
-                descriptionText = workDataClass.description
-                unitPriceText = workDataClass.unitPrice.toString()
             }
         ) {
             Card(
@@ -640,7 +638,7 @@ fun ModifyWorkInListDialog(
                     Spacer(Modifier.size(16.dp))
                     TextField(
                         value = descriptionText,
-                        onValueChange = { descriptionText = it },
+                        onValueChange = { onDescriptionChange(it) },
                         placeholder = { Text(stringResource(R.string.work_description)) },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences
@@ -655,7 +653,7 @@ fun ModifyWorkInListDialog(
                     TextField(value = unitPriceText,
                         onValueChange = {
                             if (it.isDigitsOnly()) {
-                                unitPriceText = it
+                                onUnitPriceChange(it)
                             }
                         },
                         label = { Text(stringResource(R.string.unit_price)) },
@@ -678,18 +676,11 @@ fun ModifyWorkInListDialog(
                         declineText = stringResource(R.string.delete),
                         declineContainerColor = DeleteButtonColor,
                         acceptContainerColor = AcceptButtonColor,
-                        onAccept = {
-                            if (descriptionText.isNotEmpty() && unitPriceText.isNotEmpty()) {
-                                onAcceptButtonClick(
-                                    workDataClass.copy(
-                                        description = descriptionText,
-                                        unitPrice = unitPriceText.toInt()
-                                    )
-                                )
-                            }
-                        },
-                        onDecline = { onDeleteButtonClick(workDataClass) }
+                        onAccept = { onAcceptButtonClick() },
+                        onDecline = { onDeleteButtonClick() }
                     )
+                    Spacer(Modifier.size(16.dp))
+                    Text("Last modif: $lastModifText", color = ButtonColor)
                 }
             }
         }

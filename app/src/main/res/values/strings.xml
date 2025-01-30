@@ -36,6 +36,7 @@
     <string name="no_payments_found">No payments found</string>
     <string name="expand">Expand</string>
     <string name="edit_work_done">Edit work done</string>
+    <string name="confirm_delete_work_in_list">Are you sure you want to delete this work?</string>
     <string name="confirm_delete_all_data">Are you sure you want to delete all work done and payments received data?</string>
     <string name="confirm_delete_work_done_data">Are you sure you want to delete all work done data?</string>
     <string name="confirm_delete_payment_data">Are you sure you want to delete all payments received data?</string>
