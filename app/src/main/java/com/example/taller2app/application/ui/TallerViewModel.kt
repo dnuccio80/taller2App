@@ -9,6 +9,11 @@ import com.example.taller2app.application.domain.annotations.AddAnnotationUseCas
 import com.example.taller2app.application.domain.annotations.DeleteAnnotationUseCase
 import com.example.taller2app.application.domain.annotations.GetAllAnnotationsUseCase
 import com.example.taller2app.application.domain.annotations.UpdateAnnotationUseCase
+import com.example.taller2app.application.domain.creditDebitBalance.ClearCreditDebitAmountUseCase
+import com.example.taller2app.application.domain.creditDebitBalance.DecrementAmountUseCase
+import com.example.taller2app.application.domain.creditDebitBalance.GetCurrentCreditDebitBalanceUseCase
+import com.example.taller2app.application.domain.creditDebitBalance.IncrementCurrentAmountUseCase
+import com.example.taller2app.application.domain.creditDebitBalance.InsertDefaultBalanceValueUseCase
 import com.example.taller2app.application.domain.payments.AddNewPaymentUseCase
 import com.example.taller2app.application.domain.payments.DeleteAllPaymentDataUseCase
 import com.example.taller2app.application.domain.payments.DeletePaymentUseCase
@@ -28,6 +33,7 @@ import com.example.taller2app.application.ui.dataClasses.PaymentDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.getTotalPrice
+import dagger.hilt.android.internal.lifecycle.HiltWrapper_HiltViewModelFactory_ViewModelModule
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -75,8 +82,21 @@ class TallerViewModel @Inject constructor(
     private val updateAnnotationUseCase: UpdateAnnotationUseCase,
     private val deleteAnnotationUseCase: DeleteAnnotationUseCase,
 
+    // Credit Debit Balance
+    getCurrentCreditDebitBalanceUseCase: GetCurrentCreditDebitBalanceUseCase,
+    private val incrementCurrentAmountUseCase: IncrementCurrentAmountUseCase,
+    private val decrementAmountUseCase: DecrementAmountUseCase,
+    private val clearCreditDebitAmountUseCase: ClearCreditDebitAmountUseCase,
+    private val insertDefaultBalanceValueUseCase: InsertDefaultBalanceValueUseCase
+
     ) : ViewModel() {
 
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            insertDefaultBalanceValueUseCase()
+        }
+    }
 
     // <--------------------- Vals --------------------->
 
@@ -115,6 +135,12 @@ class TallerViewModel @Inject constructor(
     }.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 0
     )
+
+    private val _currentCreditDebitBalance = getCurrentCreditDebitBalanceUseCase()
+        .stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), 0
+    )
+    val currentCreditDebitBalance = _currentCreditDebitBalance
 
     // Work List Screen
 
@@ -226,6 +252,7 @@ class TallerViewModel @Inject constructor(
     fun clearAllDataHomeScreen(){
         clearAllWorkDoneData()
         clearAllPaymentData()
+        clearCreditDebitAmount()
     }
 
     fun clearAllWorkDoneData(){
@@ -237,6 +264,24 @@ class TallerViewModel @Inject constructor(
     fun clearAllPaymentData(){
         viewModelScope.launch (Dispatchers.IO){
             deleteAllPaymentDataUseCase()
+        }
+    }
+
+    fun incrementCreditDebitAmount(value: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            incrementCurrentAmountUseCase(value)
+        }
+    }
+
+    fun decrementCreditDebitAmount(value: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            decrementAmountUseCase(value)
+        }
+    }
+
+    fun clearCreditDebitAmount(){
+        viewModelScope.launch(Dispatchers.IO) {
+            clearCreditDebitAmountUseCase()
         }
     }
 
@@ -343,8 +388,7 @@ class TallerViewModel @Inject constructor(
     // Corroborate fields
 
     fun isValidPrice(amount: String): Boolean {
-        return amount.matches(Regex("\\d+,\\d*")) ||
-                amount.isDigitsOnly()
+        return amount.isDigitsOnly()
     }
 
     fun hasAllCorrectFields(amount: String, listValue: String): Boolean {

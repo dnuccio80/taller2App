@@ -230,26 +230,6 @@ fun PaymentMethodGroup(paymentValue: String, onValueChange: (String) -> Unit) {
     }
 }
 
-@Composable
-fun RadioButtonItem(selectedValue: String, description: String, onClick: (String) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick(description)
-            }, verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = description == selectedValue,
-            onClick = { onClick(description) },
-            colors = RadioButtonDefaults.colors(
-                selectedColor = ContrastColor,
-                unselectedColor = ContrastColor
-            )
-        )
-        Text(description)
-    }
-}
 
 @Composable
 fun CashAmountTextField(
@@ -918,5 +898,104 @@ fun ConfirmDialog(show: Boolean, text: String, onDismiss: () -> Unit, onAccept: 
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AddDebitCreditBalanceDialog(
+    show: Boolean,
+    amountValue: String,
+    selectedValue: String,
+    onDismiss: () -> Unit,
+    onAccept: () -> Unit,
+    onDeleteData: () -> Unit,
+    onAmountChange: (String) -> Unit,
+    onSelectedValueChange: (String) -> Unit
+) {
+
+    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+
+    if (show) {
+        Dialog(
+            onDismissRequest = { onDismiss() },
+        ) {
+            Card(
+                Modifier
+                    .width(250.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = CardBackground
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    color = ButtonColor
+                )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.add_balance),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    HorizontalDividerCard()
+                    Spacer(Modifier.size(16.dp))
+                    TextField(
+                        value = amountValue,
+                        onValueChange = { onAmountChange(it) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        placeholder = { Text(text = stringResource(R.string.enter_amount)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = CardBackground,
+                            unfocusedContainerColor = CardBackground,
+                        ),
+                        singleLine = true,
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_cash),
+                                contentDescription = "money icon",
+                                tint = Color.White
+                            )
+                        },
+                    )
+                    Spacer(Modifier.size(16.dp))
+                    DebitCreditRadioButtonGroup(selectedValue) { onSelectedValueChange(it) }
+                    Spacer(Modifier.size(16.dp))
+                    AcceptDeclineButtons(
+                        acceptText = stringResource(R.string.accept),
+                        declineText = stringResource(R.string.reset),
+                        onAccept = { onAccept() },
+                        onDecline = { showConfirmDialog = true }
+                    )
+                }
+            }
+        }
+    }
+    ConfirmDialog(
+        show = showConfirmDialog,
+        text = stringResource(R.string.confirm_delete_credit_debit_balance),
+        onDismiss = { showConfirmDialog = false },
+        onAccept = {
+            showConfirmDialog = false
+            onDeleteData()
+        }
+    )
+}
+
+@Composable
+fun DebitCreditRadioButtonGroup(selectedValue: String, onSelectedValueChange: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        RadioButtonItem(
+            selectedValue = selectedValue,
+            description = AvailablePaymentMethods.DebitBalance.paymentMethod
+        ) { onSelectedValueChange(AvailablePaymentMethods.DebitBalance.paymentMethod) }
+        RadioButtonItem(
+            selectedValue = selectedValue,
+            description = AvailablePaymentMethods.CreditBalance.paymentMethod
+        ) { onSelectedValueChange(AvailablePaymentMethods.CreditBalance.paymentMethod) }
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.example.taller2app.application.data.AppDataBase
 import com.example.taller2app.application.data.annotations.AnnotationsDao
+import com.example.taller2app.application.data.debitCreditBalance.CreditDebitBalanceDao
 import com.example.taller2app.application.data.paymentMethod.PaymentDao
 import com.example.taller2app.application.data.workDone.WorkDoneDao
 import com.example.taller2app.application.data.workList.WorkDao
@@ -51,6 +52,12 @@ object AppModule {
     @Singleton
     fun provideAnnotationsDao(appDataBase: AppDataBase): AnnotationsDao {
         return appDataBase.annotationsDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideCreditDebitBalanceDao(appDataBase: AppDataBase): CreditDebitBalanceDao {
+        return appDataBase.creditDebitBalanceDao
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.taller2app.application.ui.screens
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -57,6 +58,7 @@ import com.example.taller2app.application.ui.dataClasses.WorkDataClass
 import com.example.taller2app.application.ui.dataClasses.WorkDoneDataClass
 import com.example.taller2app.application.ui.dataClasses.formatNumber
 import com.example.taller2app.application.ui.dataClasses.getTotalPrice
+import com.example.taller2app.application.ui.items.AddDebitCreditBalanceDialog
 import com.example.taller2app.application.ui.items.AddNewWorkDoneDialog
 import com.example.taller2app.application.ui.items.BodyTextItem
 import com.example.taller2app.application.ui.items.ConfirmDialog
@@ -73,7 +75,6 @@ import com.example.taller2app.ui.theme.ContrastColor
 import com.example.taller2app.ui.theme.NegativeBalanceColor
 import com.example.taller2app.ui.theme.PositiveBalanceColor
 import com.example.taller2app.ui.theme.TextColor
-import kotlin.math.exp
 
 @Composable
 fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
@@ -88,6 +89,9 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 
     val totalPaymentReceivedByCategory by viewModel.totalPaymentReceivedByCategory.collectAsState()
     val totalAmountInWorkDone by viewModel.totalAmountInWorkDone.collectAsState()
+
+    // Debit Credit Balance
+    val currentCreditDebitBalance: Int by viewModel.currentCreditDebitBalance.collectAsState()
 
     // Saver for SelectedWorkDataClass
     val workDataClassSaver = Saver<WorkDataClass, List<Any>>(
@@ -137,6 +141,7 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
             BalanceCardItem(
                 totalPaymentReceivedByCategory,
                 totalAmountInWorkDone,
+                currentCreditDebitBalance,
                 viewModel
             )
             Spacer(Modifier.size(16.dp))
@@ -203,16 +208,23 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: TallerViewModel) {
 private fun BalanceCardItem(
     totalPaymentReceived: Map<String, Int>,
     totalAmountInWorkDone: Int,
+    currentCreditDebitBalance: Int,
     viewModel: TallerViewModel,
 ) {
 
     val cashAmount = totalPaymentReceived[AvailablePaymentMethods.Cash.paymentMethod] ?: 0
     val checkAmount = totalPaymentReceived[AvailablePaymentMethods.Check.paymentMethod] ?: 0
 
-    val balance = totalAmountInWorkDone - cashAmount - checkAmount
+    val balance = totalAmountInWorkDone + currentCreditDebitBalance - cashAmount - checkAmount
     val positiveBalance = balance >= 0
 
     var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+    var showAddBalanceDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Debit/Credit balance
+    var amountValue by rememberSaveable { mutableStateOf("") }
+    var groupSelectedValue by rememberSaveable { mutableStateOf("") }
+
 
     Card(
         Modifier.fillMaxWidth(),
@@ -256,6 +268,25 @@ private fun BalanceCardItem(
                 if (positiveBalance) PositiveBalanceColor else NegativeBalanceColor
             )
             Spacer(Modifier.size(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BodyTextItem(
+                    "${stringResource(R.string.debit_credit_balance)}: $ ${
+                        viewModel.formatPrice(
+                            currentCreditDebitBalance
+                        )
+                    }"
+                )
+                Spacer(Modifier.size(16.dp))
+                Icon(
+                    Icons.Rounded.AddCircle,
+                    contentDescription = "add debit/credit balance",
+                    tint = TextColor,
+                    modifier = Modifier.clickable {
+                        showAddBalanceDialog = true
+                    }
+                )
+            }
+            Spacer(Modifier.size(8.dp))
             BodyTextItem(
                 "${stringResource(R.string.work_done)}: $ ${
                     viewModel.formatPrice(
@@ -289,6 +320,39 @@ private fun BalanceCardItem(
         onDismiss = {
             showConfirmDialog = false
         })
+    AddDebitCreditBalanceDialog(
+        show = showAddBalanceDialog,
+        amountValue = amountValue,
+        selectedValue = groupSelectedValue,
+        onDismiss = {
+            showAddBalanceDialog = false
+            amountValue = ""
+            groupSelectedValue = ""
+        },
+        onAccept = {
+            if (viewModel.hasAllCorrectFields(amountValue, groupSelectedValue)) {
+                if (groupSelectedValue == AvailablePaymentMethods.DebitBalance.paymentMethod) {
+                    viewModel.decrementCreditDebitAmount(amountValue.toInt())
+                } else if (groupSelectedValue == AvailablePaymentMethods.CreditBalance.paymentMethod) {
+                    viewModel.incrementCreditDebitAmount(amountValue.toInt())
+                }
+                Log.i("Damian", "Selected Value: $groupSelectedValue, amount: $amountValue")
+                showAddBalanceDialog = false
+                amountValue = ""
+                groupSelectedValue = ""
+            }
+        },
+        onAmountChange = {
+            if (viewModel.isValidPrice(it)) {
+                amountValue = it
+            }
+        },
+        onDeleteData = {
+            viewModel.clearCreditDebitAmount()
+            showAddBalanceDialog = false
+        },
+        onSelectedValueChange = { groupSelectedValue = it }
+    )
 }
 
 @Composable
@@ -300,7 +364,7 @@ private fun PaymentReceivedCardItem(
     var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    val cardSize by animateDpAsState(if(expanded) 380.dp else 200.dp)
+    val cardSize by animateDpAsState(if (expanded) 380.dp else 200.dp)
 
     Card(
         Modifier
@@ -334,7 +398,11 @@ private fun PaymentReceivedCardItem(
                     ),
                     contentPadding = PaddingValues(4.dp)
                 ) {
-                    Icon(if(expanded)Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown , contentDescription = "expand/retract button", tint = TextColor)
+                    Icon(
+                        if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "expand/retract button",
+                        tint = TextColor
+                    )
                 }
                 Spacer(Modifier.width(16.dp))
                 Button(
@@ -419,7 +487,7 @@ private fun WorkDoneCardItem(
 
     var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val cardSize by animateDpAsState(if(expanded) 400.dp else 240.dp)
+    val cardSize by animateDpAsState(if (expanded) 400.dp else 240.dp)
 
     Card(
         Modifier
@@ -450,7 +518,11 @@ private fun WorkDoneCardItem(
                     ),
                     contentPadding = PaddingValues(4.dp)
                 ) {
-                    Icon(if(expanded)Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown , contentDescription = "expand/retract button", tint = TextColor)
+                    Icon(
+                        if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "expand/retract button",
+                        tint = TextColor
+                    )
                 }
                 Spacer(Modifier.width(16.dp))
                 Button(

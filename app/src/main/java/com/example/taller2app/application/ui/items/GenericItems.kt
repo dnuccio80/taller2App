@@ -1,5 +1,6 @@
 package com.example.taller2app.application.ui.items
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,8 +15,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -113,5 +117,26 @@ fun HorizontalDividerCard() {
         thickness = .5.dp,
         color = ButtonColor
     )
+}
+
+@Composable
+fun RadioButtonItem(selectedValue: String, description: String, onClick: (String) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick(description)
+            }, verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = description == selectedValue,
+            onClick = { onClick(description) },
+            colors = RadioButtonDefaults.colors(
+                selectedColor = ContrastColor,
+                unselectedColor = ContrastColor
+            )
+        )
+        Text(description)
+    }
 }
 

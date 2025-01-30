@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Taller2App</string>
+    <string name="app_name">Taller App</string>
     <string name="work_done">Work Done</string>
     <string name="works">Works</string>
     <string name="search_work">Search work</string>
@@ -21,6 +21,8 @@
     <string name="delete">Delete</string>
     <string name="decline">Decline</string>
     <string name="add_new_work">Add new work</string>
+    <string name="debit_credit_balance">Debit/Credit Balance</string>
+    <string name="add_balance">Add Balance</string>
     <string name="edit_work">Edit work</string>
     <string name="new_annotation">New Annotation</string>
     <string name="edit_payment">Edit Payment</string>
@@ -28,6 +30,7 @@
     <string name="annotation_title">Annotation title</string>
     <string name="add_new_payment">Add new payment</string>
     <string name="clear">Clear</string>
+    <string name="reset">Reset</string>
     <string name="clear_all">Clear All</string>
     <string name="no_works_found">No works found</string>
     <string name="no_payments_found">No payments found</string>
@@ -36,5 +39,6 @@
     <string name="confirm_delete_all_data">Are you sure you want to delete all work done and payments received data?</string>
     <string name="confirm_delete_work_done_data">Are you sure you want to delete all work done data?</string>
     <string name="confirm_delete_payment_data">Are you sure you want to delete all payments received data?</string>
+    <string name="confirm_delete_credit_debit_balance">Are you sure you want to delete credit/debit balance data?</string>
     <string name="quantity">Quantity</string>
 </resources>

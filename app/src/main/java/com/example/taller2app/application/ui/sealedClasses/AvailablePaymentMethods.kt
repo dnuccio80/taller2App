@@ -5,4 +5,6 @@ sealed class AvailablePaymentMethods(
 ) {
     data object Cash : AvailablePaymentMethods("Cash")
     data object Check : AvailablePaymentMethods("Check")
+    data object DebitBalance : AvailablePaymentMethods("Debit balance")
+    data object CreditBalance : AvailablePaymentMethods("Credit balance")
 }
